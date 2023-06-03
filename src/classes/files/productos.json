@@ -1,0 +1,44 @@
+[
+	{
+		"title": "arroz",
+		"description": "arroz blanco 1kg",
+		"code": "a2",
+		"price": 400,
+		"stock": 30,
+		"category": "comida",
+		"thumnail": [
+			"imagenArroz1.png",
+			"imagenArroz2.png"
+		],
+		"status": true,
+		"id": "af4b4fc0-2624-4d56-80fb-3b2d5910cb9e"
+	},
+	{
+		"title": "gaseosa",
+		"description": "coca-cola 2.25 ltr",
+		"code": "a3",
+		"price": 550,
+		"stock": 25,
+		"category": "bebida",
+		"thumnail": [
+			"imagenCoca1.png",
+			"imagenCoca2.png"
+		],
+		"status": true,
+		"id": "5de984a4-3602-4c8f-b0dc-db48de04c6d3"
+	},
+	{
+		"title": "fanta",
+		"description": "fanta 2 ltr",
+		"code": "a1",
+		"price": 500,
+		"stock": 5,
+		"category": "bebida fanta",
+		"thumnail": [
+			"imagenFanta1.png",
+			"imagenFanta2.png"
+		],
+		"status": true,
+		"id": "88c45d1c-2008-431d-b77a-368343cb90b4"
+	}
+]
