@@ -1,5 +1,5 @@
 import { Router } from "express"
-import ProductManager from "../classes/ProductManager.class.js"
+import ProductManager from "../daos/mongodb/ProductManager.class.js";
 
 const router = Router();
 
@@ -21,7 +21,10 @@ router.post("/", async (req, res) => {
     console.log(req.body);
     const product = req.body;
 
-    productManager.crearProducto(product);
+    await productManager.crearProducto(product);
+    const products = await productManager.consultarProductos()
+
+    req.socketServer.sockets.emit("update-products", products)
     res.send({ status: "success" });
 });
 

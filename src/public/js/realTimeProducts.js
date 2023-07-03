@@ -16,6 +16,7 @@ socket.on("update-products", (products) => {
       <p> Price: ${product.price} </p>
       <button id=${product.id} onclick="deleteProduct(this)"> Borrar </button>
     `
+
     productElement.setAttribute("style", "border: 1px solid #000; border-radius: 1rem; padding: 1rem; margin-bottom: 1rem")
     productsContainer.appendChild(productElement)
   }
