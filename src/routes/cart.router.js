@@ -23,11 +23,19 @@ router.post("/", async (req, res) => {
   res.send({ status: "success" });
 });
 
-router.post("/:cid/product/:pid", async (req, res) => {
+router.post("/cart/:cid/product/:pid", async (req, res) => {
   const cartId = req.params.cid;
   const productId = req.params.pid;
 
   await managerCarts.agregarProductoEnCarrito(cartId, productId);
+  res.send({ status: "success" });
+});
+
+router.delete("/cart/:cid/product/:pid", async (req, res) => {
+  const cartId = req.params.cid;
+  const productId = req.params.pid;
+
+  await managerCarts.eliminarProductoEnCarrito(cartId, productId);
   res.send({ status: "success" });
 });
 

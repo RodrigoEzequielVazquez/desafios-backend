@@ -32,4 +32,11 @@ export default class ManagerCarts {
     await cart.save()
     return
   }
+  
+  eliminarProductoEnCarrito = async (idCart, idProduct) => {
+    const cart = await this.consultarCartPorId(idCart)
+    cart.products.pull(idProduct)
+    await cart.save()
+    return
+  }
 }
