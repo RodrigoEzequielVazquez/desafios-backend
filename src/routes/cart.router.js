@@ -23,7 +23,7 @@ router.post("/", async (req, res) => {
   res.send({ status: "success" });
 });
 
-router.post("/:cid/product/:pid", async (req, res) => {
+router.post("/cart/:cid/product/:pid", async (req, res) => {
   const cartId = req.params.cid;
   const productId = req.params.pid;
 
