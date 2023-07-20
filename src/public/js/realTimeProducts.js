@@ -5,6 +5,7 @@ let addProductBtn = document.getElementById("add-product-btn")
 // Socket.on
 
 socket.on("update-products", (products) => {
+  console.log();
   let productsContainer = document.getElementById("products-container")
   productsContainer.innerHTML = ""
 

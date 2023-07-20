@@ -23,17 +23,39 @@ router.post("/", async (req, res) => {
   res.send({ status: "success" });
 });
 
-router.post("/cart/:cid/product/:pid", async (req, res) => {
+router.post("/:cid/product/:pid", async (req, res) => {
   const cartId = req.params.cid;
   const productId = req.params.pid;
   await managerCarts.agregarProductoEnCarrito(cartId, productId);
   res.send({ status: "success" });
+  console.log("error");
 });
 
-router.delete("/cart/:cid/product/:pid", async (req, res) => {
+router.delete("/:cid/product/:pid", async (req, res) => {
   const cartId = req.params.cid;
   const productId = req.params.pid;
   await managerCarts.eliminarProductoEnCarrito(cartId, productId);
+  res.send({ status: "success" });
+});
+
+router.delete("/:cid", async (req, res) => {
+  const cartId = req.params.cid;
+  await managerCarts.eliminarTodosLosProductos(cartId)
+  res.send({ status: "success" });
+});
+
+router.put("/:cid", async (req, res) => {
+  const cartId = req.params.cid;
+  const arrProducts = req.body
+  await managerCarts.actualizarCarrito(cartId, arrProducts)
+  res.send({ status: "success" });
+})
+
+router.put("/:cid/product/:pid", async (req, res) => {
+  const cartId = req.params.cid;
+  const productId = req.params.pid;
+  const quantity = Number (req.body.quantity)
+  await managerCarts.actualizarCantidadDelProducto(cartId, productId,quantity);
   res.send({ status: "success" });
 });
 

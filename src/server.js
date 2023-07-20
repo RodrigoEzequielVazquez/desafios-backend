@@ -8,6 +8,7 @@ import cartRouter from "./routes/cart.router.js"
 import viewsRouter from "./routes/views.router.js"
 
 import ProductManager from "./daos/mongodb/ProductManager.class.js";
+import CartManager from "./daos/mongodb/CartManager.class.js";
 import MessageManager from "./daos/mongodb/MessagesManager.js";
 
 const app = express()
@@ -31,7 +32,8 @@ socketServer.on("connection", async (socket) => {
     console.log("Estas conectado " + socket.id)
 
     let productManager = new ProductManager()
-
+    let cartManager = new CartManager
+    
     socket.emit("update-products", await productManager.consultarProductos())
 
     socket.on("add-product", async (productData) => {
@@ -42,6 +44,19 @@ socketServer.on("connection", async (socket) => {
     socket.on("delete-product", async (productID) => {
         await productManager.eliminarProductoPorId(productID)
         socketServer.emit("update-products", await productManager.consultarProductos())
+    })
+
+    socket.on("add-product-to-cart", async (productId) => {
+ 
+        const cartId ="64a9f670770a9307d721f009"
+
+        console.log(productId);
+
+        if (cartId && productId) {
+            
+        await cartManager.agregarProductoEnCarrito(cartId,productId)
+        }
+
     })
 
     let messageManager = new MessageManager()
