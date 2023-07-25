@@ -15,7 +15,6 @@ router.get("/", async (req, res) => {
 
   const todosLosProductos = await productManager.consultarProductos(limit, page, sort, filtro, filtroVal);
   const products = todosLosProductos
-  console.log(todosLosProductos);
   res.render("home", { products })
 
 })

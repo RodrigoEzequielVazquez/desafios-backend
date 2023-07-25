@@ -1,4 +1,7 @@
 import express from "express"
+import session from "express-session";
+import MongoStore from "connect-mongo";
+import mongoose from "mongoose";
 import __dirname from "./utils.js"
 import handlebars from "express-handlebars"
 import { Server } from "socket.io";
@@ -6,6 +9,7 @@ import { Server } from "socket.io";
 import productRouter from "./routes/products.router.js"
 import cartRouter from "./routes/cart.router.js"
 import viewsRouter from "./routes/views.router.js"
+import sessionRouter from "./routes/session.router.js";
 
 import ProductManager from "./daos/mongodb/ProductManager.class.js";
 import CartManager from "./daos/mongodb/CartManager.class.js";
@@ -13,10 +17,27 @@ import MessageManager from "./daos/mongodb/MessagesManager.js";
 
 const app = express()
 
+const connection = mongoose.connect(
+    "mongodb+srv://rodrigovazquez99:BcKutvT3FsEJwAOL@cluster0.y15gbah.mongodb.net/?retryWrites=true&w=majority"
+);
+
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-
 app.use(express.static(__dirname + "/public"));
+
+
+app.use(
+    session({
+      store: new MongoStore({
+        mongoUrl:
+        "mongodb+srv://rodrigovazquez99:BcKutvT3FsEJwAOL@cluster0.y15gbah.mongodb.net/?retryWrites=true&w=majority",
+      }),
+      secret: "mongoSecret",
+      resave: true,
+      saveUninitialized: false,
+    })
+  );
+  
 
 app.engine("handlebars", handlebars.engine())
 app.set("views", __dirname + "/views")
@@ -81,3 +102,4 @@ app.use((req, res, next) => {
 app.use("/", viewsRouter)
 app.use("/products", productRouter)
 app.use("/carts", cartRouter)
+app.use('/api/sessions', sessionRouter)

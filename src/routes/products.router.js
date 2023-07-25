@@ -13,7 +13,8 @@ router.get("/", async (req, res) => {
     let filtroVal = req.query.filtroVal
 
     const products = await productManager.consultarProductos(limit,page,sort,filtro,filtroVal);
-    res.send({ products });
+    const docs = products.docs
+    res.send({ docs });
 });
 
 router.get("/:id", async (req, res) => {
