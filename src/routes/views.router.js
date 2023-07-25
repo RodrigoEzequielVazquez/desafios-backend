@@ -12,10 +12,18 @@ router.get("/", async (req, res) => {
   let sort = Number(req.query.sort);
   let filtro = req.query.filtro;
   let filtroVal = req.query.filtroVal;
+  console.log(limit,page,sort,filtro,filtroVal);
 
-  const todosLosProductos = await productManager.consultarProductos(limit, page, sort, filtro, filtroVal);
-  const products = todosLosProductos
-  res.render("home", { products })
+  if (limit || page || sort || filtro || filtroVal) {
+    const products = await productManager.consultarProductos(limit, page, sort, filtro, filtroVal);
+    res.render("home", { products })
+  }
+  else{
+    const products = await productManager.consultarProductos();
+    res.render("home", { products })
+  
+  }
+
 
 })
 
@@ -36,6 +44,19 @@ router.get('/chat', (req, res) => {
   res.render('messages');
 })
 
+router.get('/register', (req, res) => {
+  res.render('register');
+})
+
+router.get('/login', (req, res) => {
+  res.render('login');
+})
+
+router.get('/profile', (req, res) => {
+  res.render('profile', {
+      user: req.session.user
+  });
+})
 
 
 export default router

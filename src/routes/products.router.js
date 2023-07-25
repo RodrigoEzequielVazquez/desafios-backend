@@ -12,9 +12,19 @@ router.get("/", async (req, res) => {
     let filtro = req.query.filtro
     let filtroVal = req.query.filtroVal
 
-    const products = await productManager.consultarProductos(limit,page,sort,filtro,filtroVal);
+    if (limit || page || sort || filtro || filtroVal) {
+        const products = await productManager.consultarProductos(limit,page,sort,filtro,filtroVal);
     const docs = products.docs
+    console.log(docs);
     res.send({ docs });
+      }
+      else{
+        const products = await productManager.consultarProductos();
+        const docs = products.docs
+        console.log(docs);
+        res.send({ docs });
+      
+      }
 });
 
 router.get("/:id", async (req, res) => {

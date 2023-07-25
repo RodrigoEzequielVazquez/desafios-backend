@@ -9,11 +9,12 @@ export default class ProductManager {
     let whereOptions = {}
     if (filtro != "" && filtroVal != "") {
       whereOptions = { [filtro]: filtroVal }
-
     }
+   // console.log(limit,page,sort,filtro,filtroVal);
     let result = await productsModel.paginate(whereOptions, {
       limit: limit, page: page, sort: { price: sort }, lean:true
     })
+    //console.log(result);
     return result
   };
 
