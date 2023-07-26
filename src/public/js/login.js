@@ -13,7 +13,10 @@ form.addEventListener('submit',e=>{
         }
     }).then(result=>{
         if(result.status===200){
+            console.log(result.status);
             window.location.replace('/');
+        }else{
+            alert("El usuario no existe, intente nuevamente")
         }
     })
 })

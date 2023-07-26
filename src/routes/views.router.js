@@ -12,18 +12,17 @@ router.get("/", async (req, res) => {
   let sort = Number(req.query.sort);
   let filtro = req.query.filtro;
   let filtroVal = req.query.filtroVal;
-  console.log(limit,page,sort,filtro,filtroVal);
+ // console.log(limit,page,sort,filtro,filtroVal);
 
   if (limit || page || sort || filtro || filtroVal) {
     const products = await productManager.consultarProductos(limit, page, sort, filtro, filtroVal);
-    res.render("home", { products })
+    res.render("home", { products, user: req.session.user })
   }
   else{
     const products = await productManager.consultarProductos();
-    res.render("home", { products })
+    res.render("home", { products, user: req.session.user})
   
   }
-
 
 })
 
@@ -53,9 +52,8 @@ router.get('/login', (req, res) => {
 })
 
 router.get('/profile', (req, res) => {
-  res.render('profile', {
-      user: req.session.user
-  });
+  console.log(req.session.user);
+  res.render('profile', {user: req.session.user });
 })
 
 
