@@ -14,6 +14,8 @@ import sessionRouter from "./routes/session.router.js";
 import ProductManager from "./daos/mongodb/ProductManager.class.js";
 import CartManager from "./daos/mongodb/CartManager.class.js";
 import MessageManager from "./daos/mongodb/MessagesManager.js";
+import { intializePassport } from "./config/passport.config.js";
+import passport from "passport";
 
 const app = express()
 
@@ -26,11 +28,11 @@ app.use(express.urlencoded({ extended: true }))
 app.use(express.static(__dirname + "/public"));
 
 
+
 app.use(
     session({
       store: new MongoStore({
-        mongoUrl:
-        "mongodb+srv://rodrigovazquez99:BcKutvT3FsEJwAOL@cluster0.y15gbah.mongodb.net/?retryWrites=true&w=majority",
+        mongoUrl:"mongodb+srv://rodrigovazquez99:BcKutvT3FsEJwAOL@cluster0.y15gbah.mongodb.net/?retryWrites=true&w=majority",
       }),
       secret: "mongoSecret",
       resave: true,
@@ -38,6 +40,10 @@ app.use(
     })
   );
   
+intializePassport()
+app.use(passport.initialize())  
+app.use(passport.session())  
+
 
 app.engine("handlebars", handlebars.engine())
 app.set("views", __dirname + "/views")
