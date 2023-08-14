@@ -3,8 +3,11 @@ import local from "passport-local"
 import GithubStrategy from "passport-github2";
 import { createHash,isValidPassword } from "../utils.js";
 import userModel from "../daos/mongodb/models/users.models.js";
+import ManagerCarts from "../daos/mongodb/CartManager.class.js";
 
 export const intializePassport = () => {
+
+     const managerCarts = new ManagerCarts();
 
     const LocalStrategy = local.Strategy;
     passport.use('register', new LocalStrategy({ passReqToCallback: true, usernameField: 'email' }, async (req, username, password, done) => {
@@ -17,13 +20,16 @@ export const intializePassport = () => {
                     res.status(400).send({ status: "error", message: "usuario ya registrado" });
                     return done(null, result);
                 } 
-            
+
+                const cart = await managerCarts.crearCart()
                 let result = await userModel.create({
                     first_name,
                     last_name,
                     email,
                     age,
                     password: createHash(password),
+                    role: "user",
+                    cartId: cart.id
                 });
 
                 return done(null, result);
@@ -67,12 +73,17 @@ export const intializePassport = () => {
             let user = await userModel.findOne({ email: profile._json.email });
             if (!user) {
 
+               
+                const cart = await managerCarts.crearCart()
+
                 let newUser = {
                     first_name: profile._json.name,
                     last_name: "test lastname",
                     email: profile._json.email,
                     age: 25,
                     password: "1234",
+                    role: "user",
+                    cartId: cart.id
                 };
                 const result = await userModel.create(newUser);
                 done(null, result);
