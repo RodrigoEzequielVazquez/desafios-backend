@@ -1,9 +1,10 @@
 import mongoose from "mongoose";
 import { messagesModel } from "./models/messages.models.js"
+import config from "../../../config.js";
 
 export default class MessageManager {
 
-    connection = mongoose.connect("mongodb+srv://rodrigovazquez99:BcKutvT3FsEJwAOL@cluster0.y15gbah.mongodb.net/?retryWrites=true&w=majority")
+    connection = mongoose.connect(config.mongoURL)
 
     crearChat = async (message) => {
         const messages = await messagesModel.create(message)

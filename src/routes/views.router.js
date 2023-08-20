@@ -1,9 +1,7 @@
 import { Router } from "express";
-import ProductManager from "../daos/mongodb/ProductManager.class.js";
-import CartManager from "../daos/mongodb/CartManager.class.js";
+import { consultarProductosController } from "../controlador/products.controller.js";
+import { consultarCartsPorIdController } from "../controlador/cart.controller.js";
 
-const productManager = new ProductManager()
-const cartManager = new CartManager()
 const router = Router()
 
 router.get("/", async (req, res) => {
@@ -14,15 +12,9 @@ router.get("/", async (req, res) => {
   let filtroVal = req.query.filtroVal;
  // console.log(limit,page,sort,filtro,filtroVal);
 
-  if (limit || page || sort || filtro || filtroVal) {
-    const products = await productManager.consultarProductos(limit, page, sort, filtro, filtroVal);
-    res.render("home", { products, user: req.session.user })
-  }
-  else{
-    const products = await productManager.consultarProductos();
-    res.render("home", { products, user: req.session.user})
-  
-  }
+ const products = await consultarProductosController(limit,page,sort,filtro,filtroVal);
+ console.log(products);
+  res.render("home", { products, user: req.session.user })
 
 })
 
@@ -32,7 +24,7 @@ router.get('/realtimeproducts', async (req, res) => {
 
 router.get('/cart/:cid', async (req, res) => {
   const cartId = req.params.cid;
-  const cart = await cartManager.consultarCartPorId(cartId)
+  const cart = await consultarCartsPorIdController(cartId)
   const products = cart.products
   console.log(products);
   res.render('carts', {

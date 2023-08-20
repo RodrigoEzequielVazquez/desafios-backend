@@ -1,5 +1,7 @@
 import { Router } from "express"
 import ProductManager from "../daos/mongodb/ProductManager.class.js";
+import { actualizarProductoPorIdController, constultarProductoPorIdController, consultarProductosController, crearProductoController, eliminarProductoPorIdController } from "../controlador/products.controller.js";
+
 
 const router = Router();
 
@@ -11,35 +13,23 @@ router.get("/", async (req, res) => {
     let sort = Number(req.query.sort);
     let filtro = req.query.filtro
     let filtroVal = req.query.filtroVal
-
-    if (limit || page || sort || filtro || filtroVal) {
-        const products = await productManager.consultarProductos(limit,page,sort,filtro,filtroVal);
-    const docs = products.docs
-    //console.log(docs);
+   
+    const docs = await consultarProductosController(limit,page,sort,filtro,filtroVal);
     res.send({ docs });
-      }
-      else{
-        const products = await productManager.consultarProductos();
-        const docs = products.docs
-       // console.log(docs);
-        res.send({ docs });
-      
-      }
 });
 
 router.get("/:id", async (req, res) => {
     const id = req.params.id;
-    const product = await productManager.consultarProductoPorId(id);
+    const product = await constultarProductoPorIdController(id);
     res.send({ product });
 });
 
 router.post("/", async (req, res) => {
-    console.log(req.body);
     const product = req.body;
+    await crearProductoController(product);
 
-    await productManager.crearProducto(product);
+    //productos en tiempo real
     const products = await productManager.consultarProductos()
-
     req.socketServer.sockets.emit("update-products", products)
     res.send({ status: "success" });
 });
@@ -47,13 +37,13 @@ router.post("/", async (req, res) => {
 router.put("/:id", async (req, res) => {
     const id = req.params.id;
     const actualizacion = req.body
-    const product = await productManager.actualizarProductoPorId(id, actualizacion);
+    const product = await actualizarProductoPorIdController(id, actualizacion);
     res.send({ product });
 });
 
 router.delete("/:id", async (req, res) => {
     const id = req.params.id;
-    const product = await productManager.eliminarProductoPorId(id);
+    const product = await eliminarProductoPorIdController(id);
     res.send({ product });
 });
 

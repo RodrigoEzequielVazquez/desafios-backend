@@ -17,10 +17,12 @@ import MessageManager from "./daos/mongodb/MessagesManager.js";
 import { intializePassport } from "./config/passport.config.js";
 import passport from "passport";
 
+import config from "../config.js";
+
 const app = express()
 
 const connection = mongoose.connect(
-    "mongodb+srv://rodrigovazquez99:BcKutvT3FsEJwAOL@cluster0.y15gbah.mongodb.net/?retryWrites=true&w=majority"
+    config.mongoURL
 );
 
 app.use(express.json())
@@ -32,9 +34,9 @@ app.use(express.static(__dirname + "/public"));
 app.use(
     session({
       store: new MongoStore({
-        mongoUrl:"mongodb+srv://rodrigovazquez99:BcKutvT3FsEJwAOL@cluster0.y15gbah.mongodb.net/?retryWrites=true&w=majority",
+        mongoUrl:config.mongoURL,
       }),
-      secret: "mongoSecret",
+      secret: config.mongoSecret ,
       resave: true,
       saveUninitialized: false,
     })
@@ -49,7 +51,7 @@ app.engine("handlebars", handlebars.engine())
 app.set("views", __dirname + "/views")
 app.set("view engine", "handlebars")
 
-const httpServer = app.listen(8080, () => {
+const httpServer = app.listen(config.port, () => {
     console.log("servidor iniciado");
 })
 
@@ -104,6 +106,7 @@ app.use((req, res, next) => {
     req.socketServer = socketServer
     next()
 })
+
 
 app.use("/", viewsRouter)
 app.use("/products", productRouter)
