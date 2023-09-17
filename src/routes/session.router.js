@@ -1,29 +1,35 @@
 import { Router } from "express";
 import passport from "passport";
+import jwt from "jsonwebtoken"
 import { userController } from "../controlador/session.controller.js";
 
 const router = Router();
 
-router.post("/register", passport.authenticate("register",{failureRedirect:"/failregister"}), async (req, res) => {
+router.post("/register", passport.authenticate("register",{session:false}), async (req, res) => {
  
-    res.send({ status: "Success", message: "Usuario  registrado" });
+    res.send({ status: "success", message: "usuario  registrado" });
 
 });
 
-router.get("/failregister", async(req,res) =>{
-console.log("Registro Fallido");
-res.send({error:"Error"})
-})
+// router.get("/failregister", async(req,res) =>{
+// console.log("Registro Fallido");
+// res.send({error:"Error"})
+// })
 
 router.post("/login", passport.authenticate("login",{failureRedirect:"/faillogin"}), async (req, res) => {
-    
-    const usuario = req.user
-    userController(usuario,req,res)
+    let token = jwt.sign({ email: req.body.email }, "coderSecret", {
+        expiresIn: "24h",
+      });
+      res.cookie("coderCookie", token, { httpOnly: true }).send({ status: "success" });
 
 });
 
-router.get("/faillogin", (req,res) =>{
-    res.send({error:"Login fallido"})
+// router.get("/faillogin", (req,res) =>{
+//     res.send({error:"Login fallido"})
+// })
+
+router.get("/current",passport.authenticate("jwt",{session:false}),(req,res) =>{
+    res.send(req.user)
 })
 
 router.get("/logout", (req, res) => {

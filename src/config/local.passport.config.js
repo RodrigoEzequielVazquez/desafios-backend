@@ -1,23 +1,39 @@
 import passport from "passport";
 import local from "passport-local"
 import GithubStrategy from "passport-github2";
+import { createHash,isValidPassword } from "../utils.js";
 import userModel from "../daos/mongodb/models/users.models.js";
 import ManagerCarts from "../daos/mongodb/CartManager.class.js";
-import config from "../../config.js";
-import { loginController, registerController } from "../controlador/session.controller.js";
 
-export const intializePassport = () => {
+export const intializePassportLocal = () => {
 
-     const managerCarts = new ManagerCarts();
+    const managerCarts = new ManagerCarts();
 
     const LocalStrategy = local.Strategy;
     passport.use('register', new LocalStrategy({ passReqToCallback: true, usernameField: 'email' }, async (req, username, password, done) => {
             const { first_name, last_name, email, age } = req.body;
 
             try {
-                
-               registerController(first_name,last_name,email,age,password,done)
-                
+                const usuario = await userModel.findOne({ email: username });
+        
+                if (usuario) {
+                    res.status(400).send({ status: "error", message: "usuario ya registrado" });
+                    return done(null, false);
+                } 
+
+                const cart = await managerCarts.crearCart()
+
+                let nuevoUsuario = await userModel.create({
+                    first_name,
+                    last_name,
+                    email,
+                    age,
+                    password: createHash(password),
+                    role: "user",
+                    cartId: cart.id
+                });
+
+                return done(null, nuevoUsuario);
               
             } catch (error) {
                 return done("Error al obtener el usuario " + error )
@@ -27,11 +43,18 @@ export const intializePassport = () => {
     ))
 
     passport.use('login', new LocalStrategy({usernameField: 'email'}, async (username,password,done) => {
-
-      
         try{
-
-            loginController(username,password,done)
+            const usuario = await userModel.findOne({ email: username });
+            
+            if(!usuario) {
+                console.log("El usuario no existe")
+                return done(null, false);
+            }
+           
+            if (!isValidPassword(password, usuario)) {
+                return done("Contraseña invalida", null);
+            }
+            return done(null, usuario);
            
         } catch (error) {
             return done(error);
@@ -40,9 +63,9 @@ export const intializePassport = () => {
 
     passport.use("github", new GithubStrategy(
         {
-            clientID: config.clientId,
-            clientSecret: config.clientSecret,
-            callbackURL: config.callbackURL,
+            clientID: "Iv1.4941235288435e20",
+            clientSecret: "270cd3d70a02fa688728054407763b05454ad011",
+            callbackURL: "http://localhost:8080/api/sessions/githubcallback",
         },
         async (accessToken, refreshToken, profile, done) => {
             console.log(profile)
@@ -57,7 +80,7 @@ export const intializePassport = () => {
                     last_name: "test lastname",
                     email: profile._json.email,
                     age: 25,
-                    password: config.passwordGithub,
+                    password: "1234",
                     role: "user",
                     cartId: cart.id
                 };

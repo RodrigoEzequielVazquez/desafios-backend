@@ -8,7 +8,7 @@ const schema = new mongoose.Schema({
     email:String,
     age: Number,
     password: String,
-    role: String,
+    role: {type: String,default:"User"},
     cartId: {type: mongoose.Schema.Types.ObjectId,ref: "carts"}
 })
 
