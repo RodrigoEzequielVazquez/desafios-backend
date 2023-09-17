@@ -1,7 +1,6 @@
 import { Router } from "express";
 import passport from "passport";
 import jwt from "jsonwebtoken"
-import { userController } from "../controlador/session.controller.js";
 
 const router = Router();
 
