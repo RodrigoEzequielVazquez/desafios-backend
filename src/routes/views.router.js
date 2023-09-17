@@ -1,12 +1,13 @@
 import { Router } from "express";
 import ProductManager from "../daos/mongodb/ProductManager.class.js";
 import CartManager from "../daos/mongodb/CartManager.class.js";
+import passport from "passport";
 
 const productManager = new ProductManager()
 const cartManager = new CartManager()
 const router = Router()
 
-router.get("/", async (req, res) => {
+router.get("/",passport.authenticate("jwt",{session:false}), async (req, res) => {
   const limit = Number(req.query.limit);
   const page = Number(req.query.page);
   let sort = Number(req.query.sort);
@@ -16,11 +17,11 @@ router.get("/", async (req, res) => {
 
   if (limit || page || sort || filtro || filtroVal) {
     const products = await productManager.consultarProductos(limit, page, sort, filtro, filtroVal);
-    res.render("home", { products, user: req.session.user })
+    res.render("home", { products, user: req.user })
   }
   else{
     const products = await productManager.consultarProductos();
-    res.render("home", { products, user: req.session.user})
+    res.render("home", { products, user: req.user})
   
   }
 

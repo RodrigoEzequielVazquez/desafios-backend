@@ -5,24 +5,25 @@ import { createHash,isValidPassword } from "../utils.js";
 import userModel from "../daos/mongodb/models/users.models.js";
 import ManagerCarts from "../daos/mongodb/CartManager.class.js";
 
-export const intializePassport = () => {
+export const intializePassportLocal = () => {
 
-     const managerCarts = new ManagerCarts();
+    const managerCarts = new ManagerCarts();
 
     const LocalStrategy = local.Strategy;
     passport.use('register', new LocalStrategy({ passReqToCallback: true, usernameField: 'email' }, async (req, username, password, done) => {
             const { first_name, last_name, email, age } = req.body;
 
             try {
-                const exist = await userModel.findOne({ email });
+                const usuario = await userModel.findOne({ email: username });
         
-                if (exist) {
+                if (usuario) {
                     res.status(400).send({ status: "error", message: "usuario ya registrado" });
-                    return done(null, result);
+                    return done(null, false);
                 } 
 
                 const cart = await managerCarts.crearCart()
-                let result = await userModel.create({
+
+                let nuevoUsuario = await userModel.create({
                     first_name,
                     last_name,
                     email,
@@ -32,7 +33,7 @@ export const intializePassport = () => {
                     cartId: cart.id
                 });
 
-                return done(null, result);
+                return done(null, nuevoUsuario);
               
             } catch (error) {
                 return done("Error al obtener el usuario " + error )
@@ -42,20 +43,18 @@ export const intializePassport = () => {
     ))
 
     passport.use('login', new LocalStrategy({usernameField: 'email'}, async (username,password,done) => {
-
-      
         try{
-
-            const user = await userModel.findOne({ email: username });
+            const usuario = await userModel.findOne({ email: username });
             
-            if(!user) {
+            if(!usuario) {
                 console.log("El usuario no existe")
                 return done(null, false);
             }
            
-            if (!isValidPassword(password, user)) return done(null, false);
-            console.log(user, 'user login')
-            return done(null, user);
+            if (!isValidPassword(password, usuario)) {
+                return done("Contraseña invalida", null);
+            }
+            return done(null, usuario);
            
         } catch (error) {
             return done(error);

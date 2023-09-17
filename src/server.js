@@ -14,8 +14,10 @@ import sessionRouter from "./routes/session.router.js";
 import ProductManager from "./daos/mongodb/ProductManager.class.js";
 import CartManager from "./daos/mongodb/CartManager.class.js";
 import MessageManager from "./daos/mongodb/MessagesManager.js";
-import { intializePassport } from "./config/passport.config.js";
+import { intializePassportLocal } from "./config/local.passport.config.js";
+import { initializePassportJWT } from "./config/jwt.passport.js";
 import passport from "passport";
+import cookieParser from "cookie-parser";
 
 const app = express()
 
@@ -27,7 +29,10 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(express.static(__dirname + "/public"));
 
-
+app.use(cookieParser())
+initializePassportJWT()
+intializePassportLocal()
+app.use(passport.initialize())  
 
 app.use(
     session({
@@ -37,13 +42,11 @@ app.use(
       secret: "mongoSecret",
       resave: true,
       saveUninitialized: false,
-    })
+    }) 
   );
   
-intializePassport()
-app.use(passport.initialize())  
-app.use(passport.session())  
 
+app.use(passport.session())  
 
 app.engine("handlebars", handlebars.engine())
 app.set("views", __dirname + "/views")
