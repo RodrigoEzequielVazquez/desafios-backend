@@ -1,100 +1,83 @@
-import ManagerCarts from "../daos/mongodb/CartManager.class.js";
-import ProductManager from "../daos/mongodb/ProductManager.class.js";
+import ProductManager from "../daos/mongodb/ProductMongo.dao.js";
 import { cartModel } from "../daos/mongodb/models/carts.model.js";
+import CartService from "../services/cart.service.js";
 
-const managerCarts = new ManagerCarts();
-const productManager = new ProductManager(); 
+const productManager = new ProductManager();
 
-export const consultarCartsController = async () =>{
-    const carts = await managerCarts.consultarCarts();
-    if(!carts){
-      return "No se encontraron carritos"
+export default class CartController {
+
+    constructor() {
+        this.cartService = new CartService()
     }
-    return carts
 
-}
+    async consultarCartsController() {
+        const carts = await this.cartService.consultarCartsService();
+        return carts
 
-export const consultarCartsPorIdController = async (id) =>{
-    const cart = await managerCarts.consultarCartPorId(id);
-    if (cart) {
+    }
+
+    async consultarCartsPorIdController(req) {
+        const id = req.params.cid;
+        const cart = await this.cartService.consultarCartsPorIdService(id);
         return cart
     }
-    return "Carrito no encontrado"
-  
-}
 
-export const crearCartController = async () =>{
-    await managerCarts.crearCart();
-}
+    async crearCartController() {
+        const cart = await this.cartService.crearCartService();
+        return cart
+    }
 
-export const agregarProductoEnCarritoController = async (idCart,idProduct) =>{
-    const product = await productManager.consultarProductoPorId(idProduct)
-    const cart = await managerCarts.consultarCartPorId(idCart)
-    if(!product || !cart){
-        return "No se pudo agregar el producto, verifique los datos e intente nuevamente"
-    }
-    else{
-        await managerCarts.agregarProductoEnCarrito(cart,product);
-        return "Producto agregado"
-    }
-  
-}
+    async agregarProductoEnCarritoController(req) {
+        const cartId = req.params.cid;
+        const productId = req.params.pid;
 
-export const eliminarProductoEnCarritoController = async (idCart,idProduct) =>{
-    const cart = await managerCarts.consultarCartPorId(idCart)
-    if(!cart){
-        return "No se encontro el carrito, verifique los datos e intente nuevamente"
+        await this.cartService.agregarProductoEnCarritoService(cartId, productId);
     }
-    else{
-        await managerCarts.eliminarProductoEnCarrito(cart,idProduct);
-        return "Producto eliminado"
-    }
-  
-}
 
-export const eliminarTodosLosProductosController = async (idCart) =>{
-    const cart = await managerCarts.consultarCartPorId(idCart)
-    if(!cart){
-        return "No se encontro el carrito, verifique los datos e intente nuevamente"
-    }
-    else{
-        await managerCarts.eliminarTodosLosProductos(cart);
-        return "Se eliminaron todos los productos"
-    }
-  
-}
+    async actualizarCarritoController(req) {
+        const cartId = req.params.cid;
+        const arrProducts = req.body
 
-export const actualizarCarritoController = async (idCart, arrProducts) =>{
-    const cart = await managerCarts.consultarCartPorId(idCart)
-    if(!cart){
-        return "No se encontro el carrito, verifique los datos e intente nuevamente"
-    }
-    else{
-        await managerCarts.actualizarCarrito(cart,arrProducts);
+        await this.cartService.actualizarCarritoService(cartId, arrProducts);
         return "Se actualizo el carrito"
-    }
-  
-}
 
-export const actualizarCantidadDelProductoController = async (idCart,idProduct, quantity) =>{
-    const cart = await cartModel.findById(idCart).populate("products.product")
-    if(!cart){
-        return "No se encontro el carrito, verifique los datos e intente nuevamente"
     }
-    else{
-        if (isNaN(quantity)) {
-            return "La cantidad ingresada debe ser expresada en numeros"
-        }
-        else{
-            const productoActualizar = cart.products.find((product) => product._id == idProduct)
-        if(productoActualizar){
-            await managerCarts.actualizarCantidadDelProducto(cart,productoActualizar,quantity);
-            return "Se actualizo el carrito"
-        }
-        else{
-            return "No se encontro el producto en el carrito que ingreso"
-        }
-        } 
-    }
-}
 
+    async actualizarCantidadDelProductoController(req) {
+        const cartId = req.params.cid;
+        const productId = req.params.pid;
+        const quantity = Number(req.body.quantity)
+
+        const cart = await this.cartService.actualizarCantidadDelProductoService(cartId, productId, quantity);
+        return cart
+
+    }
+
+    async eliminarProductoEnCarritoController(req) {
+        const cartId = req.params.cid;
+        const productId = req.params.pid;
+
+        await this.cartService.eliminarProductoEnCarritoService(cartId, productId);
+        return "Producto eliminado"
+
+    }
+
+    async eliminarTodosLosProductosController(req) {
+        const cartId = req.params.cid
+
+        await this.cartService.eliminarTodosLosProductosService(cartId);
+        return "Se eliminaron todos los productos"
+
+    }
+
+    async procesoDeCompra(req,res) {
+
+        const cartId = req.params.cid
+
+        const comprador = req.user.email
+
+        await this.cartService.procesoDeCompraService(cartId,comprador,res)
+    }
+
+
+}

@@ -1,57 +1,57 @@
 import { Router } from "express";
-import { actualizarCarritoController, agregarProductoEnCarritoController, consultarCartsController, consultarCartsPorIdController, crearCartController, eliminarProductoEnCarritoController,eliminarTodosLosProductosController } from "../controlador/cart.controller.js";
+import CartController from "../controlador/cart.controller.js";
+import passport from "passport";
+import { verfircarPertenenciaCarrito } from "./middlewares/carts.middlewares.js";
+import { rolesMiddlewaresUser } from "./middlewares/roles.middlewares.js";
 
 const router = Router();
 
-router.get("/:cid", async (req, res) => {
-  const id = req.params.cid;
-  const cart = await consultarCartsPorIdController(id)
-  res.send(cart);
-});
+const cartController = new CartController()
 
 router.get("/", async (req, res) => {
-  const carts = await consultarCartsController()
+  const carts = await cartController.consultarCartsController()
   res.send(carts);
 });
 
+router.get("/:cid", async (req, res) => {
+  const cart = await cartController.consultarCartsPorIdController(req)
+  res.send(cart);
+});
+
 router.post("/", async (req, res) => {
-  await crearCartController();
+  await cartController.crearCartController();
   res.send({ status: "success" });
 });
 
-router.post("/:cid/product/:pid", async (req, res) => {
-  const cartId = req.params.cid;
-  const productId = req.params.pid;
-  const result =  await agregarProductoEnCarritoController(cartId, productId);
-  res.send({ status: result });
-});
 
-router.delete("/:cid/product/:pid", async (req, res) => {
-  const cartId = req.params.cid;
-  const productId = req.params.pid;
-  const result = await eliminarProductoEnCarritoController(cartId, productId);
-  res.send({ status: result });
-});
-
-router.delete("/:cid", async (req, res) => {
-  const cartId = req.params.cid;
-  const result = await eliminarTodosLosProductosController(cartId)
-  res.send({ status: result });
+router.post("/:cid/product/:pid",passport.authenticate("jwt",{session:false}),rolesMiddlewaresUser,verfircarPertenenciaCarrito, async (req, res) => {
+  const result =  await cartController.agregarProductoEnCarritoController(req);
+  res.send({ status: "El producto se agrego correctamente" });
 });
 
 router.put("/:cid", async (req, res) => {
-  const cartId = req.params.cid;
-  const arrProducts = req.body
-  const result = await actualizarCarritoController(cartId, arrProducts)
+  const result = await cartController.actualizarCarritoController(req)
   res.send({ status: result });
 })
 
 router.put("/:cid/product/:pid", async (req, res) => {
-  const cartId = req.params.cid;
-  const productId = req.params.pid;
-  const quantity = Number (req.body.quantity)
-  const result = await actualizarCantidadDelProductoController(cartId, productId,quantity);
+  const result = await cartController.actualizarCantidadDelProductoController(req);
   res.send({ status: result });
+});
+
+router.delete("/:cid/product/:pid", async (req, res) => {
+  const result = await cartController.eliminarProductoEnCarritoController(req);
+  res.send({ status: result });
+});
+
+router.delete("/:cid", async (req, res) => {
+  const result = await cartController.eliminarTodosLosProductosController(req)
+  res.send({ status: result });
+});
+
+router.post("/:cid/purchase",passport.authenticate("jwt",{ session: false }), async (req, res) => {
+  const compra = await cartController.procesoDeCompra(req,res)
+
 });
 
 export default router;

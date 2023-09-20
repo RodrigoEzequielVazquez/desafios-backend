@@ -1,21 +1,22 @@
 import { Router } from "express";
-import { consultarProductosController } from "../controlador/products.controller.js";
-import { consultarCartsPorIdController } from "../controlador/cart.controller.js";
+import ProductController from "../controlador/products.controller.js";
+import CartController from "../controlador/cart.controller.js";
 import passport from "passport";
+import { rolesMiddlewaresUser } from "./middlewares/roles.middlewares.js";
 
 const router = Router()
 
-router.get("/",passport.authenticate("jwt",{session:false}), async (req, res) => {
-  const limit = Number(req.query.limit);
-  const page = Number(req.query.page);
-  let sort = Number(req.query.sort);
-  let filtro = req.query.filtro;
-  let filtroVal = req.query.filtroVal;
-  // console.log(limit,page,sort,filtro,filtroVal);
+const cartController = new CartController()
+const productController = new ProductController()
 
-  const products = await consultarProductosController(limit, page, sort, filtro, filtroVal);
-  console.log(products);
-  res.render("home", { products, user: req.user })
+router.get("/",passport.authenticate("jwt",{session:false}), async (req, res) => {
+
+  const products = await productController.consultarProductosController(req)
+  console.log("productos");
+  let usuario = req.user
+  console.log(usuario);
+  console.log("view");
+  res.render("home", { products, user: usuario })
 
 })
 
@@ -24,16 +25,14 @@ router.get('/realtimeproducts', async (req, res) => {
 })
 
 router.get('/cart/:cid', async (req, res) => {
-  const cartId = req.params.cid;
-  const cart = await consultarCartsPorIdController(cartId)
+  const cart = await cartController.consultarCartsPorIdController(req)
   const products = cart.products
   console.log(products);
   res.render('carts', {
-    products: JSON.parse(JSON.stringify(products))
-  })
+    products: JSON.parse(JSON.stringify(products))})
 })
 
-router.get('/chat', (req, res) => {
+router.get('/chat',passport.authenticate("jwt",{session:false}),rolesMiddlewaresUser, (req, res) => {
   res.render('messages');
 })
 
@@ -47,7 +46,7 @@ router.get('/login', (req, res) => {
 
 router.get('/profile', (req, res) => {
   console.log(req.session.user);
-  res.render('profile', { user: req.session.user });
+  res.render('profile', {user: req.session.user });
 })
 
 

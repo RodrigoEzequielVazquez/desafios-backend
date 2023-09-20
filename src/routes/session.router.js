@@ -1,6 +1,7 @@
 import { Router } from "express";
 import passport from "passport";
 import jwt from "jsonwebtoken"
+import { CurrentUserDTO } from "../controlador/DTO/user.dto.js";
 
 const router = Router();
 
@@ -15,12 +16,22 @@ router.post("/register", passport.authenticate("register",{session:false}), asyn
 // res.send({error:"Error"})
 // })
 
-router.post("/login", passport.authenticate("login",{failureRedirect:"/faillogin"}), async (req, res) => {
-    let token = jwt.sign({ email: req.body.email }, "coderSecret", {
+router.post("/login", passport.authenticate("login",{ session: false }), async (req, res) => {
+    console.log(req.user);
+    let user = {
+        id:req.user._id,
+        nombre:req.user.first_name,
+        apellido:req.user.last_name,
+        email:req.user.email,
+        edad:req.user.age,
+        contraseña:req.user.password,
+        rol:req.user.role,
+        cart:req.user.cartId
+    }
+    let token = jwt.sign( user , "coderSecret", {
         expiresIn: "24h",
       });
       res.cookie("coderCookie", token, { httpOnly: true }).send({ status: "success" });
-
 });
 
 // router.get("/faillogin", (req,res) =>{
@@ -28,20 +39,19 @@ router.post("/login", passport.authenticate("login",{failureRedirect:"/faillogin
 // })
 
 router.get("/current",passport.authenticate("jwt",{session:false}),(req,res) =>{
-    res.send(req.user)
+    res.send(new CurrentUserDTO(req.user))
 })
 
-router.get("/logout", (req, res) => {
-    req.session.destroy(err => {
-        if (err) {
-            return res.json({ status: "logout error", body: err })
-        }
-        res.send("Logout realizado")
-    })
-})
+// router.get("/logout", (req, res) => {
+//     req.session.destroy(err => {
+//         if (err) {
+//             return res.json({ status: "logout error", body: err })
+//         }
+//         res.send("Logout realizado")
+//     })
+// })
 
 router.get("/github", passport.authenticate("github",{scope:"user:email"}),async(req,res) =>{
-
 })
 
 router.get("/githubcallback", passport.authenticate("github",{failureRedirect: "/login"}),async(req,res) =>{

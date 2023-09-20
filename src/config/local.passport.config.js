@@ -3,7 +3,8 @@ import local from "passport-local"
 import GithubStrategy from "passport-github2";
 import { createHash,isValidPassword } from "../utils.js";
 import userModel from "../daos/mongodb/models/users.models.js";
-import ManagerCarts from "../daos/mongodb/CartManager.class.js";
+import ManagerCarts from "../daos/mongodb/CartMongo.dao.js";
+import config from "../../config.js";
 
 export const intializePassportLocal = () => {
 
@@ -23,18 +24,37 @@ export const intializePassportLocal = () => {
 
                 const cart = await managerCarts.crearCart()
 
-                let nuevoUsuario = await userModel.create({
-                    first_name,
-                    last_name,
-                    email,
-                    age,
-                    password: createHash(password),
-                    role: "user",
-                    cartId: cart.id
-                });
+                if (email === config.adminEmail && password === config.adminPassword  ) {
+                   
+                    let nuevoUsuario = await userModel.create({
+                        first_name,
+                        last_name,
+                        email,
+                        age,
+                        password: createHash(password),
+                        role: "Admin",
+                        cartId: cart.id
+                    });
 
-                return done(null, nuevoUsuario);
-              
+                    return done(null, nuevoUsuario);
+                }
+
+                else{
+                    let nuevoUsuario = await userModel.create({
+                        first_name,
+                        last_name,
+                        email,
+                        age,
+                        password: createHash(password),
+                        role: "User",
+                        cartId: cart.id
+                    });
+    
+                    console.log(nuevoUsuario);
+    
+                    return done(null, nuevoUsuario);
+                }
+
             } catch (error) {
                 return done("Error al obtener el usuario " + error )
             }
@@ -54,7 +74,9 @@ export const intializePassportLocal = () => {
             if (!isValidPassword(password, usuario)) {
                 return done("Contraseña invalida", null);
             }
+            console.log(usuario);
             return done(null, usuario);
+            
            
         } catch (error) {
             return done(error);
@@ -81,7 +103,7 @@ export const intializePassportLocal = () => {
                     email: profile._json.email,
                     age: 25,
                     password: "1234",
-                    role: "user",
+                    role: "User",
                     cartId: cart.id
                 };
                 const result = await userModel.create(newUser);

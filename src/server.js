@@ -11,8 +11,8 @@ import cartRouter from "./routes/cart.router.js"
 import viewsRouter from "./routes/views.router.js"
 import sessionRouter from "./routes/session.router.js";
 
-import ProductManager from "./daos/mongodb/ProductManager.class.js";
-import CartManager from "./daos/mongodb/CartManager.class.js";
+import ProductManager from "./daos/mongodb/ProductMongo.dao.js";
+import CartManager from "./daos/mongodb/CartMongo.dao.js";
 import MessageManager from "./daos/mongodb/MessagesManager.js";
 import { intializePassportLocal } from "./config/local.passport.config.js";
 import { initializePassportJWT } from "./config/jwt.passport.js";
@@ -36,18 +36,18 @@ initializePassportJWT()
 intializePassportLocal()
 app.use(passport.initialize()) 
 
-app.use(
-    session({
-      store: new MongoStore({
-        mongoUrl:config.mongoURL,
-      }),
-      secret: config.mongoSecret ,
-      resave: true,
-      saveUninitialized: false,
-    })
-  );
+// app.use(
+//     session({
+//       store: new MongoStore({
+//         mongoUrl:config.mongoURL,
+//       }),
+//       secret: config.mongoSecret ,
+//       resave: true,
+//       saveUninitialized: false,
+//     })
+//   );
   
-app.use(passport.session())  
+// app.use(passport.session())  
 
 app.engine("handlebars", handlebars.engine())
 app.set("views", __dirname + "/views")

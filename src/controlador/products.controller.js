@@ -1,76 +1,71 @@
-import ProductManager from "../daos/mongodb/ProductManager.class.js";
+import ProductDAO from "../daos/mongodb/ProductMongo.dao.js";
+import ProductService from "../services/product.service.js";
 
-const productManager = new ProductManager();
+export default class ProductController {
 
-export const consultarProductosController = async (limit, page, sort, filtro, filtroVal) => {
-    if (limit || page || sort || filtro || filtroVal) {
+    constructor() {
+        this.productService = new ProductService()
+        this.productDAO = new ProductDAO()
+    }
 
-        if (isNaN(limit) || isNaN(page) || isNaN(sort)) {
-            return "El limite, la pagina y el sort deben ser numeros"
-        }
-        else{
-            
-            if (filtro != "" && filtroVal != "") {
-                whereOptions = { [filtro]: filtroVal }
-                const products = await productManager.consultarProductos(limit, page, sort,whereOptions);
+    async consultarProductosController(req) {
+        let limit = Number(req.query.limit)
+        let page = Number(req.query.page)
+        let sort = Number(req.query.sort)
+        let filtro = req.query.filtro
+        let filtroVal = req.query.filtroVal
+
+        if (limit || page || sort || filtro || filtroVal) {
+
+            if (isNaN(limit) || isNaN(page) || isNaN(sort)) {
+                return "El limite, la pagina y el sort deben ser numeros"
+            }
+            else {
+
+                const products = await this.productService.consultarProductosService(limit, page, sort);
                 if (products) {
                     const docs = products.docs
                     return docs
                 }
                 return "Error al buscar los productos"
-              }
-              else{
-                const products = await productManager.consultarProductos(limit, page, sort)
-                if (products) {
-                    const docs = products.docs
-                    return docs
-                }
-                return "Error al buscar los productos"
-              }
-            
-           
-          
+
+            }
+
         }
-        
+        else {
+            const products = await this.productService.consultarProductosService();
+            const docs = products.docs
+            return docs
+        }
+
     }
-    else {
-        const products = await productManager.consultarProductos();
-        const docs = products.docs
-        return docs
-    }
 
-}
-
-export const crearProductoController = async (product) => {
-    const crearProd = await productManager.crearProducto(product);
-    if (!crearProd) {
-        return "No se pudo crear un nuevo producto"
-    }
-    return crearProd
-
-}
-
-export const constultarProductoPorIdController = async (id) => {
-    const product = await productManager.consultarCartPorId(id);
-    if (product) {
+    async constultarProductoPorIdController(req) {
+        const id = req.params.id;
+        const product = await this.productService.constultarProductoPorIdService(id);
         return product
     }
-    return "Producto no encontrado"
 
-}
+    async crearProductoController(req) {
+        const product = req.body;
+        const crearProd = await this.productService.crearProductoService(product);
+        return crearProd
 
-export const eliminarProductoPorIdController = async (id) => {
-    const product = await productManager.consultarCartPorId(id);
-    if (product) {
+    }
+
+    async actualizarProductoPorIdController(req) {
+        const id = req.params.id;
+        const actualizacion = req.body
+        const product = await this.productService.actualizarProductoPorIdService(id, actualizacion);
+        return product
+
+    }
+
+    async eliminarProductoPorIdController(req) {
+        const id = req.params.id;
+        const product = await this.productService.eliminarProductoPorIdService(id);
         return product
     }
-    return "Error al intentar eliminar el producto"
+
 }
 
-export const actualizarProductoPorIdController = async (id, updatedProduct) => {
-    const product = await productManager.updatedProduct(id, updatedProduct);
-    if (product) {
-        return product
-    }
-    return "Error al intentar actualizar el producto"
-}

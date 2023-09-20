@@ -1,8 +1,9 @@
 import mongoose from "mongoose";
 import { productsModel } from "./models/products.model.js";
 import config from "../../../config.js";
+import { v4 as uuidV4 } from "uuid";
 
-export default class ProductManager {
+export default class ProductDAO {
 
   connection = mongoose.connect(config.mongoURL)
 
@@ -16,6 +17,8 @@ export default class ProductManager {
   };
 
   crearProducto = async (product) => {
+    product.code = uuidV4()
+    console.log(product);
     let result = await productsModel.create(product)
     return result;
   };
@@ -33,5 +36,4 @@ export default class ProductManager {
     let result = await productsModel.updateOne({ _id: id }, { $set: updatedProduct })
     return result;
   }
-
 }

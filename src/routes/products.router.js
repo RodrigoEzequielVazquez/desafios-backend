@@ -1,49 +1,44 @@
 import { Router } from "express"
-import ProductManager from "../daos/mongodb/ProductManager.class.js";
-import { actualizarProductoPorIdController, constultarProductoPorIdController, consultarProductosController, crearProductoController, eliminarProductoPorIdController } from "../controlador/products.controller.js";
-
+import ProductController from "../controlador/products.controller.js";
+import ProductDAO from "../daos/mongodb/ProductMongo.dao.js";
+import passport from "passport";
+import { rolesMiddlewaresAdmin } from "./middlewares/roles.middlewares.js";
 
 const router = Router();
 
-const productManager = new ProductManager()
+const productDao = new ProductDAO()
+const productController = new ProductController()
 
 router.get("/", async (req, res) => {
-    let limit = Number(req.query.limit);
-    let page = Number(req.query.page);
-    let sort = Number(req.query.sort);
-    let filtro = req.query.filtro
-    let filtroVal = req.query.filtroVal
-   
-    const docs = await consultarProductosController(limit,page,sort,filtro,filtroVal);
-    res.send({ docs });
+    const products = await productController.consultarProductosController(req);
+    res.send({ products });
 });
 
 router.get("/:id", async (req, res) => {
-    const id = req.params.id;
-    const product = await constultarProductoPorIdController(id);
+    const product = await productController.constultarProductoPorIdController(req);
     res.send({ product });
 });
 
-router.post("/", async (req, res) => {
-    const product = req.body;
-    await crearProductoController(product);
+router.post("/",passport.authenticate("jwt",{session:false}),rolesMiddlewaresAdmin, async (req, res) => {
+
+    console.log(req.user);
+    console.log("ok");
+    
+    await productController.crearProductoController(req);
 
     //productos en tiempo real
-    const products = await productManager.consultarProductos()
+    const products = await productDao.consultarProductos()
     req.socketServer.sockets.emit("update-products", products)
     res.send({ status: "success" });
 });
 
-router.put("/:id", async (req, res) => {
-    const id = req.params.id;
-    const actualizacion = req.body
-    const product = await actualizarProductoPorIdController(id, actualizacion);
+router.put("/:id",passport.authenticate("jwt",{session:false}),rolesMiddlewaresAdmin, async (req, res) => {
+    const product = await productController.actualizarProductoPorIdController(req);
     res.send({ product });
 });
 
-router.delete("/:id", async (req, res) => {
-    const id = req.params.id;
-    const product = await eliminarProductoPorIdController(id);
+router.delete("/:id",passport.authenticate("jwt",{session:false}),rolesMiddlewaresAdmin, async (req, res) => {
+    const product = await productController.eliminarProductoPorIdController(req);
     res.send({ product });
 });
 

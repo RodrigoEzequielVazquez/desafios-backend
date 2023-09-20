@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 import { cartModel } from "./models/carts.model.js";
-import ProductManager from "./ProductManager.class.js";
+import ProductManager from "./ProductMongo.dao.js";
 import config from "../../../config.js";
 
-export default class ManagerCarts {
+export default class CartDAO {
 
   connection = mongoose.connect(config.mongoURL)
 
@@ -24,15 +24,28 @@ export default class ManagerCarts {
     return result
   };
 
-  agregarProductoEnCarrito = async (cart, product) => {
-    cart.products.push({ product: product })
+  agregarProductoEnCarrito = async (cart, product, quantity = 1) => {
+
+    const cartProduct = cart.products.find(p => {
+      return p.product._id.toString() === product.id
+    })
+    if (cartProduct) {
+      cart.products = cart.products.filter(producto => {
+        return  producto.product._id.toString() !== product.id
+      })
+      cart.products.push({product: product.id, quantity: cartProduct.quantity + quantity})
+    } else {
+      cart.products.push({ product: product.id, quantity: 1});
+    }
     await cart.save()
+    console.log(cart);
     return
   }
 
   eliminarProductoEnCarrito = async (cart, idProduct) => {
-    cart.products.pull(idProduct)
+    cart.products.pull({product: idProduct})
     await cart.save()
+  
     return
   }
 
