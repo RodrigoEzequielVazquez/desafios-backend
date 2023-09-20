@@ -9,8 +9,8 @@ const ticketSchema = new mongoose.Schema({
         unique: true
     },
     purchase_datetime: {
-        type: Date,
-        default: Date.now
+        type: String,
+        default: new Date().toLocaleString()
     },
     products: {type: Array},
     amount: {
@@ -22,5 +22,6 @@ const ticketSchema = new mongoose.Schema({
         required: true
     },
 })
+
 
 export const ticketModel = mongoose.model(collection, ticketSchema)
