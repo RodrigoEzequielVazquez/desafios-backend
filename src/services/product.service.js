@@ -19,8 +19,7 @@ export default class ProductService {
         if (product) {
             return product
         }
-        return "Producto no encontrado"
-
+        return "producto no encontrado"
     }
 
     async crearProductoService(product) {

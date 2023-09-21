@@ -20,6 +20,8 @@ import passport from "passport";
 import cookieParser from "cookie-parser";
 
 import config from "../config.js";
+import mockingRouter from "./routes/mocking.router.js"
+import { errorMiddleware } from "./routes/middlewares/errores.middlewares.js";
 
 const app = express()
 
@@ -109,8 +111,9 @@ app.use((req, res, next) => {
     next()
 })
 
-
 app.use("/", viewsRouter)
 app.use("/products", productRouter)
 app.use("/carts", cartRouter)
 app.use('/api/sessions', sessionRouter)
+app.use("/", mockingRouter)
+app.use(errorMiddleware)

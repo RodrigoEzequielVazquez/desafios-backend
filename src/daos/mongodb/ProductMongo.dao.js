@@ -25,6 +25,8 @@ export default class ProductDAO {
 
   consultarProductoPorId = async (id) => {
     let result = await productsModel.findOne({ _id: id })
+    console.log(result);
+    console.log("daos");
     return result
   };
 

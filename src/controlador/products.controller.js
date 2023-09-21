@@ -1,5 +1,8 @@
 import ProductDAO from "../daos/mongodb/ProductMongo.dao.js";
 import ProductService from "../services/product.service.js";
+import { ErrorEnum } from "../services/errors/enums.js";
+import { generateErrorId, generateErrorProductInfo, generateErrorActualizarProductInfo } from "../services/errors/info.js";
+import CustomError from "../services/errors/CustomError.class.js";
 
 export default class ProductController {
 
@@ -30,7 +33,6 @@ export default class ProductController {
                 return "Error al buscar los productos"
 
             }
-
         }
         else {
             const products = await this.productService.consultarProductosService();
@@ -40,31 +42,88 @@ export default class ProductController {
 
     }
 
-    async constultarProductoPorIdController(req) {
+    async constultarProductoPorIdController(req,res) {
+
         const id = req.params.id;
-        const product = await this.productService.constultarProductoPorIdService(id);
-        return product
+        console.log(id.length);
+        if (id.length != 24) {
+            console.log(id.length);
+            CustomError.createError({
+                name: "Id invalido",
+                cause: generateErrorId(id,"producto"),
+                message: "El id debe tener exactamente 24 digitos",
+                code: ErrorEnum.INVALID_ID
+            })    
+        }
+        else{
+            console.log(id.length);
+            const product = await this.productService.constultarProductoPorIdService(id);
+            res.send({status:"success", payload: product});
+            console.log(product);
+            console.log("controlador");
+        }
     }
 
-    async crearProductoController(req) {
+    async crearProductoController(req,res) {
         const product = req.body;
+            if (!product.title || !product.price || !product.stock || !product.category || !product.description ) {
+                CustomError.createError({
+                    name: "Faltan datos",
+                    cause: generateErrorProductInfo(product),
+                    message: "No completaste todos los campos requeridos para crear el producto",
+                    code: ErrorEnum.DATA_ERROR
+                }) 
+            }
+
         const crearProd = await this.productService.crearProductoService(product);
-        return crearProd
+        return res.send({status:"success", payload: crearProd}) 
 
     }
 
-    async actualizarProductoPorIdController(req) {
+    async actualizarProductoPorIdController(req,res) {
+        
         const id = req.params.id;
-        const actualizacion = req.body
-        const product = await this.productService.actualizarProductoPorIdService(id, actualizacion);
-        return product
+        const product = req.body
+
+        if (id.length != 24) {
+            console.log(id.length);
+            CustomError.createError({
+                name: "Id invalido",
+                cause: generateErrorId(id),
+                message: "El id debe tener exactamente 24 digitos",
+                code: ErrorEnum.INVALID_ID
+            })    
+        }
+
+        if (!product.title && !product.price && !product.stock && !product.category && !product.description ) {
+            CustomError.createError({
+                name: "Faltan datos",
+                cause: generateErrorActualizarProductInfo(product),
+                message: "No ingresaste ningun campo valido para actualizar",
+                code: ErrorEnum.DATA_ERROR
+            }) 
+        }
+
+        const actualizacion = await this.productService.actualizarProductoPorIdService(id, product);
+        return  res.send({ actualizacion });
 
     }
 
-    async eliminarProductoPorIdController(req) {
+    async eliminarProductoPorIdController(req,res) {
         const id = req.params.id;
+
+        if (id.length != 24) {
+            console.log(id.length);
+            CustomError.createError({
+                name: "Id invalido",
+                cause: generateErrorId(id),
+                message: "El id debe tener exactamente 24 digitos",
+                code: ErrorEnum.INVALID_ID
+            })    
+        }
+
         const product = await this.productService.eliminarProductoPorIdService(id);
-        return product
+        return res.send({status:"success", payload: product}) 
     }
 
 }
