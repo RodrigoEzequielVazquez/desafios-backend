@@ -22,6 +22,7 @@ import cookieParser from "cookie-parser";
 import config from "../config.js";
 import mockingRouter from "./routes/mocking.router.js"
 import { errorMiddleware } from "./routes/middlewares/errores.middlewares.js";
+import { LEVELS, loggerMiddleware } from "./logger.js";
 
 const app = express()
 
@@ -110,6 +111,19 @@ app.use((req, res, next) => {
     req.socketServer = socketServer
     next()
 })
+
+app.use(loggerMiddleware)
+app.get('/api/loggerTest', (req, res) => {
+
+    const {level, message} =  req.body;
+    if(!LEVELS.includes(level)) {
+      return res.status(400).send({error: "Error"})
+    }
+    req.logger[level](message)
+    
+    res.send({message: "Prueba Logger", log: {level, message}})
+  })
+  
 
 app.use("/", viewsRouter)
 app.use("/products", productRouter)

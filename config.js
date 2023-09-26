@@ -12,5 +12,6 @@ export default {
     clientSecret:process.env.CLIENT_SECRET,
     callbackURL:process.env.CALLBACK_URL,
     passwordGithub:process.env.PASSWORD_GITHUB,
-    secretOrKey:process.env.SECRET_OR_KEY
+    secretOrKey:process.env.SECRET_OR_KEY,
+    environment:process.env.ENVIRONMENT
 }
