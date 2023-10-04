@@ -66,6 +66,8 @@ export default class ProductController {
 
     async crearProductoController(req,res) {
         const product = req.body;
+        console.log("en el body");
+        console.log(product);
             if (!product.title || !product.price || !product.stock || !product.category || !product.description ) {
                 CustomError.createError({
                     name: "Faltan datos",
@@ -74,6 +76,11 @@ export default class ProductController {
                     code: ErrorEnum.DATA_ERROR
                 }) 
             }
+            if (req.user.rol === "Premium") {
+                product.owner = req.user.email
+            }
+            console.log("agregando campo owner");
+            console.log(product);
 
         const crearProd = await this.productService.crearProductoService(product);
         return res.send({status:"success", payload: crearProd}) 
@@ -104,8 +111,21 @@ export default class ProductController {
             }) 
         }
 
-        const actualizacion = await this.productService.actualizarProductoPorIdService(id, product);
-        return  res.send({ actualizacion });
+        const producto = await this.productService.constultarProductoPorIdService(id)
+        
+        if (req.user.rol == "Admin" && producto.owner == "Admin" ) {
+            const actualizacion = await this.productService.actualizarProductoPorIdService(id, product);
+            return  res.send({ actualizacion });
+        }
+
+        if (req.user.rol == "Premium" && producto.owner == req.user.email) {
+            const actualizacion = await this.productService.actualizarProductoPorIdService(id, product);
+            return  res.send({ actualizacion });
+        }
+
+        else{
+            return "No podes actualizar un producto que no te corresponde"
+        }
 
     }
 
@@ -122,8 +142,23 @@ export default class ProductController {
             })    
         }
 
-        const product = await this.productService.eliminarProductoPorIdService(id);
-        return res.send({status:"success", payload: product}) 
+        const producto = await this.productService.constultarProductoPorIdService(id)
+
+        if (req.user.rol == "Admin") {
+            const product = await this.productService.eliminarProductoPorIdService(id);
+            return res.send({status:"success", payload: product})
+    
+        }
+
+        if (req.user.rol == "Premium" && producto.owner == req.user.email) {
+            const product = await this.productService.eliminarProductoPorIdService(id);
+            return res.send({status:"success", payload: product})
+        }
+
+        else{
+            return res.send({status:"error", payload: "no podes eliminar un producto que no te corresponde"})
+        }
+ 
     }
 
 }

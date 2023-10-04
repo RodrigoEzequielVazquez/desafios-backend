@@ -28,8 +28,8 @@ router.post("/", async (req, res) => {
   res.send({ status: "success" });
 });
 
-
-router.post("/:cid/product/:pid", passport.authenticate("jwt", { session: false }), rolesMiddlewaresUser, verfircarPertenenciaCarrito, async (req, res, next) => {
+//, rolesMiddlewaresUser
+router.post("/:cid/product/:pid", passport.authenticate("jwt", { session: false }), verfircarPertenenciaCarrito, async (req, res, next) => {
 
   try {
     const result = await cartController.agregarProductoEnCarritoController(req, res);

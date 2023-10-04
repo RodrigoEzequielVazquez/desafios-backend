@@ -49,5 +49,12 @@ router.get('/profile', (req, res) => {
   res.render('profile', {user: req.session.user });
 })
 
+router.get("/requestResetPassword",(req,res) =>{
+res.render("requestResetPassword")
+})
+
+router.get('/resetPassword',passport.authenticate("jwtRequestResetPassword", {session:false, failureRedicrec: "requestResetPassword"}),(req,res)=>{
+  res.render('resetPassword');
+})
 
 export default router

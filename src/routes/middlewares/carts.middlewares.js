@@ -6,3 +6,5 @@ export const verfircarPertenenciaCarrito = (req,res,next) =>{
         res.send("Solo podes agregar productos a tu carrito")
      }
 }
+
+

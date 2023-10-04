@@ -2,8 +2,11 @@ import { Router } from "express";
 import passport from "passport";
 import jwt from "jsonwebtoken"
 import { CurrentUserDTO } from "../controlador/DTO/user.dto.js";
+import SessionController from "../controlador/session.controller.js";
 
 const router = Router();
+
+const sessionController = new SessionController()
 
 router.post("/register", passport.authenticate("register",{session:false}), async (req, res) => {
  
@@ -50,6 +53,16 @@ router.get("/current",passport.authenticate("jwt",{session:false}),(req,res) =>{
 //         res.send("Logout realizado")
 //     })
 // })
+
+router.post("/resetPassword",async(req,res) =>{
+    await sessionController.resetPasswordController(req,res)
+    
+})
+
+router.post("/requestResetPassword",async(req,res) =>{
+    await sessionController.requestResetPasswordController(req,res)
+    
+})
 
 router.get("/github", passport.authenticate("github",{scope:"user:email"}),async(req,res) =>{
 })

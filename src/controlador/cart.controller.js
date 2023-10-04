@@ -2,14 +2,15 @@ import ProductManager from "../daos/mongodb/ProductMongo.dao.js";
 import CartService from "../services/cart.service.js";
 import { ErrorEnum } from "../services/errors/enums.js";
 import { generateErrorId, generateErrorProductInfo, generateErrorActualizarProductInfo } from "../services/errors/info.js";
-
 import CustomError from "../services/errors/CustomError.class.js";
+import ProductService from "../services/product.service.js";
 const productManager = new ProductManager();
 
 export default class CartController {
 
     constructor() {
         this.cartService = new CartService()
+        this.productService = new ProductService()
     }
 
     async consultarCartsController() {
@@ -52,6 +53,12 @@ export default class CartController {
                 message: "El id debe tener exactamente 24 digitos",
                 code: ErrorEnum.INVALID_ID
             })    
+        }
+
+        const producto = await this.productService.constultarProductoPorIdService(productId)
+
+        if (req.user.rol == "Premium" && producto.owner == req.user.email) {
+            return res.send({error:"error", payload: "Un usuario premium no puede agregar productos que le pertenezcan a su carrito"})
         }
         else{
             await this.cartService.agregarProductoEnCarritoService(cartId, productId);

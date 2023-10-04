@@ -10,6 +10,7 @@ import productRouter from "./routes/products.router.js"
 import cartRouter from "./routes/cart.router.js"
 import viewsRouter from "./routes/views.router.js"
 import sessionRouter from "./routes/session.router.js";
+import usersRouter from "./routes/user.router.js"
 
 import ProductManager from "./daos/mongodb/ProductMongo.dao.js";
 import CartManager from "./daos/mongodb/CartMongo.dao.js";
@@ -130,4 +131,5 @@ app.use("/products", productRouter)
 app.use("/carts", cartRouter)
 app.use('/api/sessions', sessionRouter)
 app.use("/", mockingRouter)
+app.use("/api/users", usersRouter)
 app.use(errorMiddleware)
