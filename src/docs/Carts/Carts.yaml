@@ -1,0 +1,229 @@
+paths:
+  /carts/:
+    get:
+      summary: "Obtener todos los carritos"
+      tags:
+        - Carts
+      responses:
+        "200":
+          description: "Devuelve los carritos"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#components/schemas/Cart"
+        "500":
+          description: "Error interno del servido"
+    post:
+      summary: "Crear un carrito"
+      tags:
+        - Carts
+      responses:
+        "200":
+          description: "Crea un carrito nuevo"
+          content:
+            application/json:
+              schema:
+                type: array
+        "500":
+          description: "Error interno del servido"
+  /carts/{cid}:
+    get:
+      summary: Obtener un carrito por su id
+      tags:
+        - Carts
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: "Parametro para especicar el id del carrito a traer"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Devuelve un carrito que coincida con el id ingresado
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/Cart"
+        "500":
+          description: "Error interno del servido"
+
+    put:
+      summary: "Actualizar un carrito por su id"
+      tags:
+        - Carts
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: "Parametro para especicar el id del carrito a actualizar"
+          schema:
+            type: string
+      requestBody:
+        require: true
+        content:
+          application/json:
+            schema:
+              $ref: "#components/schemas/updateCart"
+      responses:
+        "200":
+          description: "Actualiza un carrito que coincida con el id ingresado"
+        "500":
+          description: "Error interno del servido"
+  
+    delete:
+      summary: "Elimina todos los productos del carrito"
+      tags:
+        - Carts
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: "Parametro para especicar el id del carrito a vaciar"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Elimina todos los productos del carrito segun el id ingresado"
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/Cart"
+        "500":
+          description: "Error interno del servido"
+
+  /carts/{cid}/product/{pid}:
+    post:
+      summary: "Agregar producto al carrito"
+      tags:
+        - Carts
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: "Parametro para especicar el id del carrito al cual se agregan los productos"
+          schema:
+            type: string
+        - name: pid
+          in: path
+          required: true
+          description: "Parametro para especicar el id del producto a agregar a un carrito especico"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Agrega un producto al carrito seleccionado"
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/Cart"
+        "500":
+          description: "Error interno del servido"
+  /carts/{cid}/products/{pid}:
+    delete:
+      summary: "Eliminar un producto de un carrito"
+      tags:
+        - Carts
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: "Parametro para especicar el id del carrito al cual se le va a eliminar un producto"
+          schema:
+            type: string
+        - name: pid
+          in: path
+          required: true
+          description: "Parametro para especicar el id del producto a eliminar a un carrito especico"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Elimina un producto del carrito seleccionado"
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/Cart"
+        "500":
+          description: "Error interno del servido"
+    put:
+      summary: "Actualiza la cantidad de el producto dentro del carrito"
+      tags:
+        - Carts
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: "Parametro para especicar el id del carrito con el producto a actualizar"
+          schema:
+            type: string
+        - name: pid
+          in: path
+          required: true
+          description: "Parametro para especicar el id del producto a actualizar"
+          schema:
+            type: string
+      requestBody:
+        require: true
+        content:
+          application/json:
+            schema:
+              $ref: "#components/schemas/updateQuantityCart"
+      responses:
+        "200":
+          description: "Cantidad actualizada"
+        "500":
+          description: "Error interno del servido"
+
+components:
+  schemas:
+    Cart:
+      type: object
+      properties:
+        _id:
+          type: ObjectId
+          description: id autogenerado por mongo
+        products:
+          type: array
+          description: array de productos
+      example:
+        _id: ObjectId("64a0cca504a958e7a2cd93a5")
+        products:
+          [
+            {
+              "product": "64b856c7a222432d67be75b6",
+              "quantity": 200,
+              "_id": "64b8daf0e2c97010e28f5fba",
+            },
+          ]
+    updateCart:
+      type: object
+      properties:
+        product:
+          type: object
+          description: objeto del producto
+      example: { "product": "64b856c7a222432d67be75b6", "quantity": 2 }
+    updateQuantityCart:
+      type: object
+      properties:
+        product:
+          type: object
+          description: objeto del producto
+      example: { "quantity": 400 }
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: Codercookie

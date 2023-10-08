@@ -24,6 +24,8 @@ import config from "../config.js";
 import mockingRouter from "./routes/mocking.router.js"
 import { errorMiddleware } from "./routes/middlewares/errores.middlewares.js";
 import { LEVELS, loggerMiddleware } from "./logger.js";
+import swaggerJSDoc from "swagger-jsdoc";
+import swaggerUiExpress from "swagger-ui-express"
 
 const app = express()
 
@@ -124,7 +126,21 @@ app.get('/api/loggerTest', (req, res) => {
     
     res.send({message: "Prueba Logger", log: {level, message}})
   })
-  
+
+  const swaggerOptions = {
+    definition: {
+        openapi: '3.0.1',
+        info: {
+            title: 'Documentacion de desafios backend',
+            description: 'Esta es la documentacion de desafios backend'
+        },
+    },
+    apis:[`${__dirname}/docs/**/*.yaml`]
+}
+
+const specs = swaggerJSDoc(swaggerOptions)
+
+app.use('/apidocs',swaggerUiExpress.serve, swaggerUiExpress.setup(specs))
 
 app.use("/", viewsRouter)
 app.use("/products", productRouter)
