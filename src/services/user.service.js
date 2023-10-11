@@ -17,10 +17,22 @@ export default class UserService {
         await this.userDAO.updatePassword(email, newPassword)
     }
 
-    async cambiarRolService(uid, role, email,res) {
+    async cambiarRolService(uid, role, email, res) {
 
         const usuario = await this.findUserService(email)
         console.log(usuario);
+
+        if (role === "Premium") {
+            const documents = user.documents.filter(doc => [
+                "identificacion",
+                "domicilio",
+                "estado de cuenta"
+            ].includes(doc.name.split('.')[0]))
+
+            if (documents.length < 3) {
+                 return "faltan documentos"
+            }
+        }
 
         let user = {
             id: usuario._id,
@@ -37,6 +49,20 @@ export default class UserService {
         res.cookie("coderCookie", token, { httpOnly: true })
 
         await this.userDAO.cambiarRol(uid, role)
+    }
+
+    async subirDocumentosService(uid, files) {
+        const user = await this.userDAO.findById(uid);
+        if (!user) {
+            return "no se encontro el usuario"
+        };
+
+        user.documents = Object.values(files).flat().map(file => ({
+            name: file.filename,
+            reference: file.path
+        }))
+
+        await user.save()
     }
 }
 

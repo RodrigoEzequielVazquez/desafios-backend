@@ -23,3 +23,11 @@ export const generarProductos = () =>{
         stock: faker.number.int({max:400})
     }
 }
+
+export const uploader = (destination) => multer({
+    storage: storage(destination),
+    onError: function (err, next) {
+      console.log(err);
+      next();
+    },
+  });

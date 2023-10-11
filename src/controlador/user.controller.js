@@ -22,4 +22,11 @@ export default class UserController {
         return res.send({ status: "error", payload: "No ingreso un role correcto" })
     }
 
+    async subirDocumentosController(uid, files) {
+        if(!files){
+            return res.send({ status: "error", payload: "Error al subir archivos" })
+           }
+        await this.userService.subirDocumentosService(uid, files)
+       }
+
 }
