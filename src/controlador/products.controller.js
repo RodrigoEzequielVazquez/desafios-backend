@@ -69,12 +69,14 @@ export default class ProductController {
         console.log("en el body");
         console.log(product);
             if (!product.title || !product.price || !product.stock || !product.category || !product.description ) {
+                
                 CustomError.createError({
                     name: "Faltan datos",
                     cause: generateErrorProductInfo(product),
                     message: "No completaste todos los campos requeridos para crear el producto",
                     code: ErrorEnum.DATA_ERROR
                 }) 
+
             }
             if (req.user.rol === "Premium") {
                 product.owner = req.user.email

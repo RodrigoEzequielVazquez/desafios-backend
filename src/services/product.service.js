@@ -25,7 +25,8 @@ export default class ProductService {
     async crearProductoService(product) {
         const crearProd = await this.productDAO.crearProducto(product);
         if (!crearProd) {
-            return "No se pudo crear un nuevo producto"
+            
+            return res.send({error:"Error", messagge: "Error service"})
         }
         return crearProd
 
