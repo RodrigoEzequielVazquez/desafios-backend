@@ -23,13 +23,13 @@ router.put('/premium/:uid', passport.authenticate("jwt", { session: false }), ro
     }
 })
 
-router.post('/:uid/documents', uploader("documents").fields([{name:"identificacion", maxCount: 1},{name:"domicilio", maxCount: 1},{name:"estado de cuenta", maxCount: 1}]), async (req, res, next) => {
+router.post('/:uid/documents', uploader.fields([{name:"profiles"},{name:"products"},{name:"identificacion"},{name:"domicilio"},{name:"cuenta"}]), async (req, res, next) => {
     try {
         const uid = req.params.uid;
         const files = req.files
         console.log(files)
-        await userController.subirDocumentosController(uid, files)
-        res.send({ status: "success" });
+         await userController.subirDocumentosController(uid, files)
+        res.send({ status: "success", payload:`la imagen se envio de forma correcta` });
     } catch(e) {
         next(e)
     }

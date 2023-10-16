@@ -19,14 +19,14 @@ export default class UserService {
 
     async cambiarRolService(uid, role, email, res) {
 
-        const usuario = await this.findUserService(email)
+        const usuario = await this.findUserService(uid)
         console.log(usuario);
 
         if (role === "Premium") {
-            const documents = user.documents.filter(doc => [
+            const documents = usuario.documents.filter(doc => [
                 "identificacion",
                 "domicilio",
-                "estado de cuenta"
+                "cuenta"
             ].includes(doc.name.split('.')[0]))
 
             if (documents.length < 3) {
@@ -52,15 +52,20 @@ export default class UserService {
     }
 
     async subirDocumentosService(uid, files) {
-        const user = await this.userDAO.findById(uid);
+        const user = await this.userDAO.findUser(uid);
         if (!user) {
+            console.log("user no encontrado");
             return "no se encontro el usuario"
+
         };
 
+        console.log("usuario service");
+        console.log(user.documents);
+        let documentos 
         user.documents = Object.values(files).flat().map(file => ({
             name: file.filename,
             reference: file.path
-        }))
+        })) 
 
         await user.save()
     }

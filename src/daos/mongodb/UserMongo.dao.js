@@ -2,8 +2,9 @@ import userModel from "./models/users.models.js";
 
 export default class UserDAO {
 
-    async findUser(email) {
-        let result = await userModel.findOne({ email: email })
+    async findUser(id) {
+        console.log(id);
+        let result = await userModel.findOne({ _id: id })
 
         return result
     }

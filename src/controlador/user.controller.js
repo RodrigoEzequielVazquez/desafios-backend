@@ -13,7 +13,7 @@ export default class UserController {
             console.log(role);
             console.log("paso controller");
             
-            const email = req.user.email
+            const email = req.user.id
 
             await this.userService.cambiarRolService(uid,role,email,res)
 
