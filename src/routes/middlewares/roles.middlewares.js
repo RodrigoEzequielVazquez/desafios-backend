@@ -29,7 +29,7 @@ export const rolesMiddlewaresPremium = (req,res,next)=>{
 }
 
 export const rolesMiddlewaresPremiumOuser = (req,res,next)=>{
-    console.log(req.user);
+    //console.log(req.user);
     if (req.user.rol === "Premium" || req.user.rol === "User") {
         next()
     }

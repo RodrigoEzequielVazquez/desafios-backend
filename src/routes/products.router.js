@@ -22,7 +22,7 @@ try {
 }
     
 });
-//,rolesMiddlewaresAdmin
+// ,rolesMiddlewaresAdmin
 router.post("/", passport.authenticate("jwt", { session: false }), async (req, res, next) => {
     try {
         console.log(req.user);

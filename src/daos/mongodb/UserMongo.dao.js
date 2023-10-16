@@ -3,9 +3,9 @@ import userModel from "./models/users.models.js";
 export default class UserDAO {
 
     async findUser(id) {
-        console.log(id);
-        let result = await userModel.findOne({ _id: id })
+        let result = await userModel.findById({ _id: id })
 
+       // console.log(result);
         return result
     }
 
@@ -17,6 +17,14 @@ export default class UserDAO {
         }
 
         await userModel.updateOne({ _id: user._id }, { $set: { password: newPassword } });
+    }
+
+    
+    async actualizarCampo(id, coneccion) {
+
+        console.log("dao");
+        console.log(coneccion);
+        await userModel.updateOne({ _id: id }, { $set: { last_connection: coneccion } });
     }
 
     async cambiarRol(uid,role){

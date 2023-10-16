@@ -3,10 +3,13 @@ import passport from "passport";
 import jwt from "jsonwebtoken"
 import { CurrentUserDTO } from "../controlador/DTO/user.dto.js";
 import SessionController from "../controlador/session.controller.js";
+import UserController from "../controlador/user.controller.js";
 
 const router = Router();
 
 const sessionController = new SessionController()
+
+const userController = new UserController()
 
 router.post("/register", passport.authenticate("register",{session:false}), async (req, res) => {
  
@@ -29,12 +32,18 @@ router.post("/login", passport.authenticate("login",{ session: false }), async (
         edad:req.user.age,
         contraseña:req.user.password,
         rol:req.user.role,
-        cart:req.user.cartId
+        cart:req.user.cartId,
+        last_connection: new Date().toLocaleString()
     }
     let token = jwt.sign( user , "coderSecret", {
         expiresIn: "24h",
       });
       res.cookie("coderCookie", token, { httpOnly: true }).send({ status: "success" });
+
+      await userController.actualizarUserController(req.user.id,res)
+    
+      
+
 });
 
 // router.get("/faillogin", (req,res) =>{
@@ -43,6 +52,12 @@ router.post("/login", passport.authenticate("login",{ session: false }), async (
 
 router.get("/current",passport.authenticate("jwt",{session:false}),(req,res) =>{
     res.send(new CurrentUserDTO(req.user))
+})
+
+router.get("/logout",passport.authenticate("jwt",{session:false}),async (req,res) =>{
+    res.clearCookie("coderCookie")
+    res.redirect("/login")
+    await userController.actualizarUserController(req.user.id,res)
 })
 
 // router.get("/logout", (req, res) => {

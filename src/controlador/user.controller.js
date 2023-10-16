@@ -13,13 +13,15 @@ export default class UserController {
             console.log(role);
             console.log("paso controller");
             
-            const email = req.user.id
+           // const email = req.user.id
 
-            await this.userService.cambiarRolService(uid,role,email,res)
+            await this.userService.cambiarRolService(uid,role,res)
 
-            return res.send({ status: "succes", payload: "El role fue cambiado con exito" })
         }
-        return res.send({ status: "error", payload: "No ingreso un role correcto" })
+        else{
+            return res.send({ status: "error", payload: "No ingreso un role correcto" })
+        }
+        
     }
 
     async subirDocumentosController(uid, files) {
@@ -28,5 +30,16 @@ export default class UserController {
            }
         await this.userService.subirDocumentosService(uid, files)
        }
+
+    async actualizarUserController(id,res){
+    
+
+        let coneccion = new Date().toLocaleString()
+
+
+        await this.userService.actualizarUserService(id,res,coneccion)
+        
+
+    }   
 
 }
