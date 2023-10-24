@@ -10,4 +10,9 @@ export default class TicketDAO {
         const compra = await ticketModel.create(ticket)
         return compra
     }
+
+    async getTicket(){
+        const ticket = await ticketModel.find().sort({$natural:-1}).limit(1).lean()
+        return ticket
+    }
 }

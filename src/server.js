@@ -35,7 +35,7 @@ const connection = mongoose.connect(
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-app.use(express.static(__dirname + " /public"));
+app.use(express.static(__dirname + "/public/"));
 
 app.use(cookieParser())
 initializePassportJWT()
@@ -83,16 +83,16 @@ socketServer.on("connection", async (socket) => {
         socketServer.emit("update-products", await productManager.consultarProductos())
     })
 
-    socket.on("add-product-to-cart", async (productId) => {
- 
-        const cartId ="64a9f670770a9307d721f009"
+    socket.on("add-product-to-cart", async (productId,cartId) => {
+       
+       // const cartId ="64a9f670770a9307d721f009"
+       
+        console.log(productId, cartId);
 
-        console.log(productId);
-
-        if (cartId && productId) {
+        // if (cartId && productId) {
             
-        await cartManager.agregarProductoEnCarrito(cartId,productId)
-        }
+        // await cartManager.agregarProductoEnCarrito(cartId,productId)
+        // }
 
     })
 
@@ -143,8 +143,8 @@ const specs = swaggerJSDoc(swaggerOptions)
 app.use('/apidocs',swaggerUiExpress.serve, swaggerUiExpress.setup(specs))
 
 app.use("/", viewsRouter)
-app.use("/products", productRouter)
-app.use("/carts", cartRouter)
+app.use("/api/products", productRouter)
+app.use("/api/carts", cartRouter)
 app.use('/api/sessions', sessionRouter)
 app.use("/", mockingRouter)
 app.use("/api/users", usersRouter)

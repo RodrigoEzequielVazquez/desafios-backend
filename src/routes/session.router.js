@@ -23,27 +23,30 @@ router.post("/register", passport.authenticate("register",{session:false}), asyn
 // })
 
 router.post("/login", passport.authenticate("login",{ session: false }), async (req, res) => {
-    console.log(req.user);
-    let user = {
-        id:req.user._id,
-        nombre:req.user.first_name,
-        apellido:req.user.last_name,
-        email:req.user.email,
-        edad:req.user.age,
-        contraseña:req.user.password,
-        rol:req.user.role,
-        cart:req.user.cartId,
-        last_connection: new Date().toLocaleString()
-    }
-    let token = jwt.sign( user , "coderSecret", {
-        expiresIn: "24h",
-      });
-      res.cookie("coderCookie", token, { httpOnly: true }).send({ status: "success" });
-
-      await userController.actualizarUserController(req.user.id,res)
+    try {
+        console.log(req.user);
+        let user = {
+            id:req.user._id,
+            nombre:req.user.first_name,
+            apellido:req.user.last_name,
+            email:req.user.email,
+            edad:req.user.age,
+            contraseña:req.user.password,
+            rol:req.user.role,
+            cart:req.user.cartId,
+            last_connection: new Date().getMilliseconds()
+        }
+        let token = jwt.sign( user , "coderSecret", {
+            expiresIn: "24h",
+          });
+          res.cookie("coderCookie", token, { httpOnly: true }).send({ status: "success" });
     
-      
-
+          await userController.actualizarUserController(req.user.id,res)
+        
+    } catch (error) {
+        return next(error)
+    }
+    
 });
 
 // router.get("/faillogin", (req,res) =>{
@@ -51,7 +54,8 @@ router.post("/login", passport.authenticate("login",{ session: false }), async (
 // })
 
 router.get("/current",passport.authenticate("jwt",{session:false}),(req,res) =>{
-    res.send(new CurrentUserDTO(req.user))
+    return  req.user
+   // new CurrentUserDTO(req.user)
 })
 
 router.get("/logout",passport.authenticate("jwt",{session:false}),async (req,res) =>{

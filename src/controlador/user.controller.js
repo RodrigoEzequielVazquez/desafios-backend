@@ -1,4 +1,5 @@
 import UserService from "../services/user.service.js"
+import { UsersDTO } from "./DTO/users.dto.js";
 
 export default class UserController {
 
@@ -6,40 +7,64 @@ export default class UserController {
         this.userService = new UserService()
     }
 
-    async cambiarRolController(uid, role, req, res) {
+    async cambiarRolController(uid, req, res) {
 
-        if (uid && role && role == "User" || "Premium") {
+        if (uid) {
 
-            console.log(role);
             console.log("paso controller");
-            
-           // const email = req.user.id
 
-            await this.userService.cambiarRolService(uid,role,res)
+            // const email = req.user.id
+
+            await this.userService.cambiarRolService(uid, res)
 
         }
-        else{
+        else {
             return res.send({ status: "error", payload: "No ingreso un role correcto" })
         }
-        
+
     }
 
     async subirDocumentosController(uid, files) {
-        if(!files){
+        if (!files) {
             return res.send({ status: "error", payload: "Error al subir archivos" })
-           }
+        }
         await this.userService.subirDocumentosService(uid, files)
-       }
+    }
 
-    async actualizarUserController(id,res){
-    
+    async actualizarUserController(id, res) {
 
         let coneccion = new Date().toLocaleString()
 
+        await this.userService.actualizarUserService(id, res, coneccion)
 
-        await this.userService.actualizarUserService(id,res,coneccion)
-        
+    }
 
-    }   
+    async getUsersController(view) {
+
+        let users = await this.userService.getUsersService()
+
+        console.log(view);
+        let principalInfo = users.map((user) =>{
+            return new UsersDTO(user,view)
+        })
+
+        return principalInfo
+
+    }
+
+    async eliminarUserPorEmailController(email){
+        let users = await this.userService.eliminarUserPorEmailService(email)
+    }
+
+    
+    async getInactiveUsersController(res) {
+
+        let users = await this.userService.deleteInactiveUsersService()
+
+        return res.status(200).send({ status: "success", payload: users })
+
+    }
+
+
 
 }

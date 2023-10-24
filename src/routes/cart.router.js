@@ -15,6 +15,7 @@ router.get("/", async (req, res) => {
 
 router.get("/:cid", async (req, res, next) => {
   try {
+    console.log("por api");
     const cart = await cartController.consultarCartsPorIdController(req, res)
 
   } catch (error) {
@@ -30,9 +31,10 @@ router.post("/", async (req, res) => {
 
 //, rolesMiddlewaresUser
 router.post("/:cid/product/:pid", passport.authenticate("jwt", { session: false }), verfircarPertenenciaCarrito, async (req, res, next) => {
-
+  console.log("paso ruta")
   try {
     const result = await cartController.agregarProductoEnCarritoController(req, res);
+    return result
 
   } catch (error) {
     return next(error)
@@ -82,7 +84,9 @@ router.delete("/:cid", async (req, res) => {
 
 router.post("/:cid/purchase", passport.authenticate("jwt", { session: false }), async (req, res) => {
   const compra = await cartController.procesoDeCompra(req, res)
+  return res.send({ status: "success" }).status(200);
 
 });
+
 
 export default router;

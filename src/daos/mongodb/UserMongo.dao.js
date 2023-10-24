@@ -19,16 +19,34 @@ export default class UserDAO {
         await userModel.updateOne({ _id: user._id }, { $set: { password: newPassword } });
     }
 
-    
     async actualizarCampo(id, coneccion) {
-
         console.log("dao");
         console.log(coneccion);
         await userModel.updateOne({ _id: id }, { $set: { last_connection: coneccion } });
     }
 
     async cambiarRol(uid,role){
+        console.log("usuario actualizado");
         return userModel.updateOne({_id: uid}, {role})
+    }
+
+    async getUsers (){
+        return userModel.find({})
+    }
+
+    async getInactiveUsers(tiempoIncativo){
+        return userModel.find({last_connection:{$lt: tiempoIncativo}})
+    }
+
+    async eliminarUserPorId(id){
+        let result = await userModel.deleteOne({ _id: id })
+        return result
+    }
+
+    async eliminarUserPorEmail(email){
+        let result = await userModel.deleteOne({ email: email })
+        console.log("usuario eliminado");
+        return result
     }
 
 }

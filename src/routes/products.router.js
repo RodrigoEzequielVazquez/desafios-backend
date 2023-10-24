@@ -10,8 +10,10 @@ const productDao = new ProductDAO()
 const productController = new ProductController()
 
 router.get("/", async (req, res) => {
-    const products = await productController.consultarProductosController(req);
-    res.send({ products });
+    const products = await productController.consultarProductosController(req,res);
+   
+    return {status:"success", payload:products}
+    // return products
 });
 
 router.get("/:id", passport.authenticate("jwt", { session: false }), async (req, res, next) => {

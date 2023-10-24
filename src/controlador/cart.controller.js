@@ -19,7 +19,7 @@ export default class CartController {
 
     }
 
-    async consultarCartsPorIdController(req,res) {
+    async consultarCartsPorIdController(req,res,view) {
         const id = req.params.cid;
         if (id.length != 24) {
             console.log(id.length);
@@ -32,6 +32,11 @@ export default class CartController {
         }
         else{
             const cart = await this.cartService.consultarCartsPorIdService(id);
+
+            if (view == "view") {
+                 return cart
+            }
+           
             return res.send({status:"success", payload: cart});
         }
     }
@@ -56,13 +61,15 @@ export default class CartController {
         }
 
         const producto = await this.productService.constultarProductoPorIdService(productId)
-
+        console.log(req.user.rol);
         if (req.user.rol == "Premium" && producto.owner == req.user.email) {
+            console.log("controller cart paso if");
             return res.send({error:"error", payload: "Un usuario premium no puede agregar productos que le pertenezcan a su carrito"})
         }
         else{
+            console.log("controller cart paso else");
             await this.cartService.agregarProductoEnCarritoService(cartId, productId);
-            return res.send({ status: "El producto se agrego correctamente" });
+            return res.send({ status: "success", payload:"el producto se agrego correctamente" }).status(200);
         }
 
     }
@@ -137,7 +144,8 @@ export default class CartController {
 
         const comprador = req.user.email
 
-        await this.cartService.procesoDeCompraService(cartId,comprador,res)
+        return await this.cartService.procesoDeCompraService(cartId,comprador,res)
+        
     }
 
 

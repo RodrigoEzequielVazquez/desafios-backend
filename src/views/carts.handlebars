@@ -1,14 +1,22 @@
 <div class="container-cart">
   <h1>Carrito</h1>
-  <h4>Productos en el carrito:</h4>
+  <h4>Productos en el carrito: {{cart}}</h4>
+  {{!-- <a href="/ticket">Finalizar compra</a> --}}
+  <h4>Total: ${{total}} <button onclick="comprar(`{{cart}}`)">Finalizar compra</button></h4>
   <div class="container-products-carts">
      {{#each products}}
        <div class="product-container">
           <p><span>Producto:</span> {{this.product.title}}</p>
           <p><span>Descripcion:</span> {{this.product.description}}</p>
+          <p><span>Precio:</span> {{this.product.price}}</p>
           <p><span>Cantidad:</span> {{this.quantity}}</p>
+          <p><span>Total: $</span>{{this.product.total}}</p>
+          <br>
+          <br><br><br>
+          
        </div>
       {{/each}}
   </div>
   <a class="volver" href="/products">volver</a>
+  <script src="/js/cart.js"></script>
 </div>

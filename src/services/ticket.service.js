@@ -25,4 +25,11 @@ export default class TicketService {
     }
 
 
+    async getTicketService() {
+
+       return await this.ticketDAO.getTicket()
+    }
+  
+
+
 }

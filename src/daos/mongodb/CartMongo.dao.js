@@ -26,6 +26,7 @@ export default class CartDAO {
 
   agregarProductoEnCarrito = async (cart, product, quantity = 1) => {
 
+    console.log(cart);
     const cartProduct = cart.products.find(p => {
       return p.product._id.toString() === product.id
     })

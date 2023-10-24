@@ -3,6 +3,9 @@ import ProductService from "../services/product.service.js";
 import { ErrorEnum } from "../services/errors/enums.js";
 import { generateErrorId, generateErrorProductInfo, generateErrorActualizarProductInfo } from "../services/errors/info.js";
 import CustomError from "../services/errors/CustomError.class.js";
+import nodemailer from "nodemailer"
+
+const transport = nodemailer.createTransport({ service: "gmail", port: 587, auth: { user: "colo.202019@gmail.com", pass: "jgbohsuyqpxdpgpi" } })
 
 export default class ProductController {
 
@@ -11,7 +14,7 @@ export default class ProductController {
         this.productDAO = new ProductDAO()
     }
 
-    async consultarProductosController(req) {
+    async consultarProductosController(req,res) {
         let limit = Number(req.query.limit)
         let page = Number(req.query.page)
         let sort = Number(req.query.sort)
@@ -20,24 +23,34 @@ export default class ProductController {
 
         if (limit || page || sort || filtro || filtroVal) {
 
+            console.log("hay filtros");
             if (isNaN(limit) || isNaN(page) || isNaN(sort)) {
-                return "El limite, la pagina y el sort deben ser numeros"
+                return res.send({status:"error", payload: "Los filtros de limite,pagina y orden, deben ser especificados en numero" }) 
             }
             else {
 
                 const products = await this.productService.consultarProductosService(limit, page, sort);
-                if (products) {
-                    const docs = products.docs
-                    return docs
+                const docs = products.docs
+                console.log(docs.length);
+                if (docs && docs.length > 0) {
+                    res.send({status:"success", payload: docs});
                 }
-                return "Error al buscar los productos"
-
+                else{
+                   // return res.send({status:"success", payload: "No hay productos para mostrar" });
+                }
             }
         }
         else {
             const products = await this.productService.consultarProductosService();
             const docs = products.docs
-            return docs
+            if (docs && docs.length > 0) {
+                console.log("mas de 0 ");
+                return docs
+            }
+            else{
+                console.log("por aca no va");
+                return res.send({status:"success", payload: "No hay productos para mostrar" });
+            }
         }
 
     }
@@ -66,8 +79,6 @@ export default class ProductController {
 
     async crearProductoController(req,res) {
         const product = req.body;
-        console.log("en el body");
-        console.log(product);
             if (!product.title || !product.price || !product.stock || !product.category || !product.description ) {
                 
                 CustomError.createError({
@@ -78,12 +89,11 @@ export default class ProductController {
                 }) 
 
             }
+            // si es premium, el campo owner es su email, si no por default es "admin"
             if (req.user.rol === "Premium") {
                 product.owner = req.user.email
             }
-            console.log("agregando campo owner");
-            console.log(product);
-
+            
         const crearProd = await this.productService.crearProductoService(product);
         return res.send({status:"success", payload: crearProd}) 
 
@@ -122,6 +132,7 @@ export default class ProductController {
 
         if (req.user.rol == "Premium" && producto.owner == req.user.email) {
             const actualizacion = await this.productService.actualizarProductoPorIdService(id, product);
+            
             return  res.send({ actualizacion });
         }
 
@@ -154,6 +165,13 @@ export default class ProductController {
 
         if (req.user.rol == "Premium" && producto.owner == req.user.email) {
             const product = await this.productService.eliminarProductoPorIdService(id);
+            let result = transport.sendMail({
+                from: "colo.202019@gmail.com",
+                to: req.user.email,
+                subject: "Producto eliminado",
+                html: `<div>
+                <h1>El producto ${producto.title} fue eliminado correctamente.</h1></div > `,
+            })
             return res.send({status:"success", payload: product})
         }
 

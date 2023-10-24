@@ -1,0 +1,25 @@
+<div>
+
+    <div>Gracias por tu compra, a debajo podes ver tu ticket.</div>
+
+    <div>
+
+           {{#each this.products}}
+        <div>
+            <p>{{this.producto}}, {{this.descripcion}}</p>
+            <p>Cantidad: {{this.cantidad}}</p>
+            <p>Precio por unidad: ${{this.precio}}</p>
+            <p></p>
+            <br>
+        </div>
+        {{/each}}
+        <p>Codigo de compra: {{ticket.code}}</p>
+        <p>Fecha: {{ticket.purchase_datetime}}</p>
+        <p>Total: ${{ticket.amount}}</p>
+        <p>Comprador: {{ticket.purchaser}}</p>
+    </div>
+
+    <button><a href="/products">Ver productos</a></button>
+    
+
+</div>

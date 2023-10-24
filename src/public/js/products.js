@@ -1,25 +1,23 @@
-const socket = io();
 
-socket.on("update-products", (products) => {
 
-  products.docs.forEach(product => {
-    const agregarBtn = document.getElementById(product._id)
-
-    agregarBtn.addEventListener("click", (e) => {
-      agregarAlCarrito(product._id, e)
-    })
-
-  });
-
-})
-
-function agregarAlCarrito(productId, e) {
-  e.preventDefault()
-  if (productId) {
-    socket.emit("add-product-to-cart", productId);
-    console.log("se agrego");
+async function agregarAlCarrito(productId,cartId) {
+ console.log(cartId);
+ console.log(productId);
+  try {
+      await fetch(`/api/carts/${cartId}/product/${productId}`,{
+          method:'POST',
+      }).then(result=>{
+          if(result.status===200){
+              console.log(result.status);
+            //  window.location.replace('/');
+          }else{
+              alert("El usuario no existe, intente nuevamente")
+          }
+      })
+  } catch (error) {
+      console.log(error);
   }
-
+  
 }
 
 function logout() {

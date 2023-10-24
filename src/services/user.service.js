@@ -1,5 +1,8 @@
 import UserDAO from "../daos/mongodb/UserMongo.dao.js"
 import jwt from "jsonwebtoken"
+import nodemailer from "nodemailer"
+
+const transport = nodemailer.createTransport({ service: "gmail", port: 587, auth: { user: "colo.202019@gmail.com", pass: "jgbohsuyqpxdpgpi" } })
 
 export default class UserService {
 
@@ -17,14 +20,19 @@ export default class UserService {
         await this.userDAO.updatePassword(email, newPassword)
     }
 
-    async cambiarRolService(uid, role, res) {
+    async cambiarRolService(uid, res) {
 
         const usuario = await this.findUserService(uid)
          console.log(usuario);
 
+
         if (usuario) {
 
-            if (role === "Premium") {
+            if (usuario.role == "Admin") {
+                return "no se puede cambiar ese tipo de usuario"
+            }
+ 
+            if (usuario.role === "User") {
                 const documents = usuario.documents.filter(doc => [
                     "identificacion",
                     "domicilio",
@@ -47,14 +55,14 @@ export default class UserService {
                     email: usuario.email,
                     edad: usuario.age,
                     contraseña: usuario.password,
-                    rol: role,
+                    rol: "Premium",
                     cart: usuario.cartId
                 }
                 let token = jwt.sign(user, "coderSecret", { expiresIn: "24h", });
 
                 res.cookie("coderCookie", token, { httpOnly: true })
 
-                await this.userDAO.cambiarRol(uid, role)
+                await this.userDAO.cambiarRol(uid, "Premium")
 
                 return res.send({ status: "succes", payload: "El role fue cambiado con exito" })
 
@@ -66,14 +74,14 @@ export default class UserService {
                 email: usuario.email,
                 edad: usuario.age,
                 contraseña: usuario.password,
-                rol: role,
+                rol: "User",
                 cart: usuario.cartId
             }
             let token = jwt.sign(user, "coderSecret", { expiresIn: "24h", });
 
             res.cookie("coderCookie", token, { httpOnly: true })
 
-            await this.userDAO.cambiarRol(uid, role)
+            await this.userDAO.cambiarRol(uid, "User")
 
             return res.send({ status: "succes", payload: "El role fue cambiado con exito" })
 
@@ -112,6 +120,64 @@ export default class UserService {
         const update = await this.userDAO.actualizarCampo(id,lastConection)
 
 
+    }
+
+    async getUsersService(){
+
+        const user = await this.userDAO.getUsers()
+
+        return user
+    }
+
+    async eliminarUserPorEmailService(email){
+        const users = await this.userDAO.eliminarUserPorEmail(email)
+    }
+
+    async eliminarUserPorIdService(uid){
+        const users = await this.userDAO.eliminarUserPorId(uid)
+    }
+
+
+    async getInactiveUsersService(){
+        let tiempoMaxInactivo = 172800000
+        let tiempoPrueba = 60000 // 1 minutos
+        let date = new Date(Date.now() - tiempoPrueba).toLocaleString()
+        console.log(date);
+        const inactiveUsers = await this.userDAO.getInactiveUsers(date)
+       // console.log( Date.now());
+      
+        return inactiveUsers
+
+    }
+
+    async deleteInactiveUsersService(){
+
+        const users = await this.getInactiveUsersService()
+
+        console.log(users);
+        console.log("0");
+        if (users.length > 0) {
+            console.log("0");
+            users.forEach(user =>{
+                let result = transport.sendMail({
+                    from: "colo.202019@gmail.com",
+                    to: user.email,
+                    subject: "Usuario eliminado",
+                    html: `<div>
+                    <h1>Su usuario fue eliminado por estar inactivo durante 2 dias.</h1></div > `,
+                })
+                 // this.eliminarUserPorIdService(user.id)
+                  return result
+            })
+
+            if (users.length == 0) {
+                return console.log("los usuarios fueron eliminados");
+            }
+        }
+        else{
+            return "No hubo usuarios inactivos durante los ultimos dos dias"
+        }
+    
     }
 }
 

@@ -1,0 +1,20 @@
+<div class="container-users">
+ <div>
+   {{#each this.users}}
+        <div>
+            <p>Nombre: {{this.nombre}}</p>
+            <p>Apellido: {{this.apellido}}</p>
+            <p>Emai: {{this.email}}</p>
+            <p>Rol: {{this.rol}}</p>  
+            <p>Id: {{this.id}}</p>   
+            <br><br>
+            <div><button id={{this.email}} class="eliminarUser">Eliminar usuario</button>
+            <button id={{this.id}} class="actualizarRol">Actualizar rol</button>
+            </div>
+        </div>
+        {{/each}}
+ </div>
+  
+</div>
+
+<script src="/js/usersControl.js"></script>

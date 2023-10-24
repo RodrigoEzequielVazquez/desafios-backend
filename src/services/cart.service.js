@@ -21,7 +21,9 @@ export default class CartService {
 
     async consultarCartsPorIdService(id) {
         const cart = await this.cartDAO.consultarCartPorId(id);
+        
         if (cart) {
+            console.log("hay cart");
             return cart
         }
         return "Carrito no encontrado"
@@ -41,11 +43,12 @@ export default class CartService {
         const product = await this.productService.constultarProductoPorIdService(productId)
         const cart = await this.consultarCartsPorIdService(cartId)
         if (!product || !cart) {
+            console.log("falta algo");
             return "No se pudo agregar el producto, verifique los datos e intente nuevamente"
         }
         else {
             await this.cartDAO.agregarProductoEnCarrito(cart, product);
-            return "Producto agregado"
+            return 
         }
 
     }
@@ -118,7 +121,7 @@ export default class CartService {
 
              this.productService.actualizarProductoPorIdService(prod.product._id, { stock: prod.product.stock - prod.quantity })
 
-             let conStock = {producto:prod.product.title, cantidad:prod.quantity, precio: prod.product.price}
+             let conStock = {producto:prod.product.title, cantidad:prod.quantity, precio: prod.product.price, descripcion: prod.product.description}
 
              arregloConStock.push(conStock)
     
@@ -138,6 +141,7 @@ export default class CartService {
         console.log(arregloSinStock);
 
         const products = await this.ticketService.crearTicketService(arregloConStock,comprador)
+
 
         if (arregloSinStock.length > 0) {
             return res.send(arregloSinStock)
