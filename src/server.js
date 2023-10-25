@@ -42,19 +42,6 @@ initializePassportJWT()
 intializePassportLocal()
 app.use(passport.initialize()) 
 
-// app.use(
-//     session({
-//       store: new MongoStore({
-//         mongoUrl:config.mongoURL,
-//       }),
-//       secret: config.mongoSecret ,
-//       resave: true,
-//       saveUninitialized: false,
-//     })
-//   );
-  
-// app.use(passport.session())  
-
 app.engine("handlebars", handlebars.engine())
 app.set("views", __dirname + "/views")
 app.set("view engine", "handlebars")
