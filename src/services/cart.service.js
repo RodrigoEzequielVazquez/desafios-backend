@@ -12,45 +12,27 @@ export default class CartService {
 
     async consultarCartsService() {
         const carts = await this.cartDAO.consultarCarts();
-        if (!carts) {
-            return "No se encontraron carritos"
-        }
         return carts
-
     }
 
     async consultarCartsPorIdService(id) {
         const cart = await this.cartDAO.consultarCartPorId(id);
-        
+
         if (cart) {
-            console.log("hay cart");
             return cart
         }
-        return "Carrito no encontrado"
+        return
 
     }
 
     async crearCartService() {
         const cart = await this.cartDAO.crearCart();
-        if (cart) {
-            return cart
-        }
-        return "No se pudo crear un nuevo carrito"
-
+        return cart
     }
 
-    async agregarProductoEnCarritoService(cartId, productId) {
-        const product = await this.productService.constultarProductoPorIdService(productId)
-        const cart = await this.consultarCartsPorIdService(cartId)
-        if (!product || !cart) {
-            console.log("falta algo");
-            return "No se pudo agregar el producto, verifique los datos e intente nuevamente"
-        }
-        else {
-            await this.cartDAO.agregarProductoEnCarrito(cart, product);
-            return 
-        }
-
+    async agregarProductoEnCarritoService(cart, product) {
+        await this.cartDAO.agregarProductoEnCarrito(cart, product);
+        return
     }
 
     async actualizarCarritoService(cartId, arrProducts) {
@@ -109,9 +91,8 @@ export default class CartService {
 
     }
 
-    async procesoDeCompraService(cartId,comprador,res) {
+    async procesoDeCompraService(cartId, comprador, res) {
         const cart = await this.consultarCartsPorIdService(cartId)
-        // console.log(cart.products);
 
         let arregloSinStock = []
         let arregloConStock = []
@@ -119,35 +100,28 @@ export default class CartService {
         const comprobarStock = cart.products.map(prod => {
             if (prod.product.stock >= prod.quantity) {
 
-             this.productService.actualizarProductoPorIdService(prod.product._id, { stock: prod.product.stock - prod.quantity })
+                this.productService.actualizarProductoPorIdService(prod.product._id, { stock: prod.product.stock - prod.quantity })
 
-             let conStock = {producto:prod.product.title, cantidad:prod.quantity, precio: prod.product.price, descripcion: prod.product.description}
+                let conStock = { producto: prod.product.title, cantidad: prod.quantity, precio: prod.product.price, descripcion: prod.product.description }
 
-             arregloConStock.push(conStock)
-    
-             const eliminarComprados = this.eliminarProductoEnCarritoService(cartId,prod.product._id)
-            
+                arregloConStock.push(conStock)
+
+                const eliminarComprados = this.eliminarProductoEnCarritoService(cartId, prod.product._id)
+
             }
             else {
 
-                let sinStock = {sinStock:prod.product.title + ", id: " +prod.product._id}
-                console.log("sin stock");
+                let sinStock = { sinStock: prod.product.title + ", id: " + prod.product._id }
                 arregloSinStock.push(sinStock)
-               
+
             }
         });
-
-        console.log(arregloConStock);
-        console.log(arregloSinStock);
-
-        const products = await this.ticketService.crearTicketService(arregloConStock,comprador)
-
-
         if (arregloSinStock.length > 0) {
-            return res.send(arregloSinStock)
+            return res.send({status:"error", payload: "los siguientes productos no tienen stock suficiente " + arregloSinStock})
         }
-        
-       
 
+        const products = await this.ticketService.crearTicketService(arregloConStock, comprador)
+        return res.send({status:"success", payload: products})
+        
     }
 }

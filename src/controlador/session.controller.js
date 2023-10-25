@@ -3,9 +3,10 @@ import nodemailer from "nodemailer"
 import jwt from "jsonwebtoken"
 import UserService from "../services/user.service.js"
 import { compareSync } from "bcrypt"
-import { createHash } from "../utils.js";
+import { createHash } from "../utils.js"; 
+import config from "../../config.js";
 
-const transport = nodemailer.createTransport({ service: "gmail", port: 587, auth: { user: "colo.202019@gmail.com", pass: "jgbohsuyqpxdpgpi" } })
+const transport = nodemailer.createTransport({ service: config.transporService, port: config.transportPass, auth: { user: config.emailFrom, pass: config.transportPass } })
 
 export default class SessionController {
 
@@ -40,9 +41,6 @@ export default class SessionController {
     async requestResetPasswordController(req, res) {
         const email = req.body.email
 
-        console.log(email);
-        console.log("email sesions controller");
-
         if (!email) {
             return res.status(400).send({ status: "error", error: "El email no existe" })
         }
@@ -52,13 +50,10 @@ export default class SessionController {
             return res.status(404).send({ status: "error" })
         }
 
-        console.log(user);
-        console.log("usuario sesions controller");
-
         let token = jwt.sign({ email }, "tokenReset", { expiresIn: "1h" })
 
         let result = await transport.sendMail({
-            from: "colo.202019@gmail.com",
+            from: config.emailFrom,
             to: email,
             subject: "Correo de recuperacion",
             html: `<div>

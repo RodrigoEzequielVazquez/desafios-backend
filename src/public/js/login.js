@@ -6,8 +6,6 @@ form.addEventListener('submit',e=>{
     const data = new FormData(form);
     const obj = {};
     data.forEach((value,key)=>obj[key]=value);
-    console.log(obj);
-    console.log("en login js");
     try {
         fetch('/api/sessions/login',{
             method:'POST',

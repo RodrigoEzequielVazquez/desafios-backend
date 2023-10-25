@@ -26,7 +26,6 @@ export default class CartDAO {
 
   agregarProductoEnCarrito = async (cart, product, quantity = 1) => {
 
-    console.log(cart);
     const cartProduct = cart.products.find(p => {
       return p.product._id.toString() === product.id
     })
@@ -39,19 +38,16 @@ export default class CartDAO {
       cart.products.push({ product: product.id, quantity: 1});
     }
     await cart.save()
-    console.log(cart);
     return
   }
 
   eliminarProductoEnCarrito = async (cart, idProduct) => {
     cart.products.pull({product: idProduct})
     await cart.save()
-  
     return
   }
 
   eliminarTodosLosProductos = async (cart) => {
-    console.log(cart);
     cart.products = []
     await cart.save()
     return
@@ -62,14 +58,12 @@ export default class CartDAO {
     cart.products = arrProducts
     await cart.save()
     return;
-    
   }
 
   actualizarCantidadDelProducto = async (cart, productoActualizar, quantity) => {
     productoActualizar.quantity = quantity
     cart.save() 
     return
-   
   }
 
 }

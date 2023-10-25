@@ -8,11 +8,9 @@ const router = Router();
 
 const userController = new UserController()
 
-//rolesMiddlewaresPremiumOuser,
-
 router.put('/premium/:uid', passport.authenticate("jwt", { session: false }),  async (req, res, next) => {
     try {
-       // const role = req.body.rol;
+   
         const uid = req.params.uid;
 
         console.log("ruta inicial" );
@@ -49,8 +47,8 @@ router.get('/', passport.authenticate("jwt", { session: false }), async (req, re
     }
 })
 
-// passport.authenticate("jwt", { session: false })
-router.delete('/inactiveusers/', async (req, res, next) => {
+
+router.delete('/inactiveusers/', passport.authenticate("jwt", { session: false }), async (req, res, next) => {
     try {
       
         return await userController.getInactiveUsersController(res)
@@ -66,7 +64,6 @@ router.delete('/delete/:email', passport.authenticate("jwt", { session: false })
       
         const email = req.params.email;
 
-        console.log(email);
         res.send({status:"success"})
         return await userController.eliminarUserPorEmailController(email)
         

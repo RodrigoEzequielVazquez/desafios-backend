@@ -1,8 +1,9 @@
 import UserDAO from "../daos/mongodb/UserMongo.dao.js"
 import jwt from "jsonwebtoken"
 import nodemailer from "nodemailer"
+import config from "../../config.js";
 
-const transport = nodemailer.createTransport({ service: "gmail", port: 587, auth: { user: "colo.202019@gmail.com", pass: "jgbohsuyqpxdpgpi" } })
+const transport = nodemailer.createTransport({ service: config.transporService, port: config.transportPass, auth: { user: config.emailFrom, pass: config.transportPass } })
 
 export default class UserService {
 
@@ -23,9 +24,7 @@ export default class UserService {
     async cambiarRolService(uid, res) {
 
         const usuario = await this.findUserService(uid)
-         console.log(usuario);
-
-
+     
         if (usuario) {
 
             if (usuario.role == "Admin") {
@@ -39,14 +38,10 @@ export default class UserService {
                     "cuenta"
                 ].includes(doc.name.split('.')[0]))
 
-
-                console.log(documents);
-                //  console.log(usuario.documents[0].name.split(".")[0]);
                 if (documents.length < 3) {
 
                     return res.send({ status: "error", payload: "Debe ingresar todos los documentos" })
                 }
-
 
                 let user = {
                     id: usuario._id,
@@ -97,9 +92,6 @@ export default class UserService {
 
         };
 
-        console.log("usuario service");
-        console.log(user.documents);
-        let documentos
         user.documents = Object.values(files).flat().map(file => ({
             name: file.filename,
             reference: file.path
@@ -112,13 +104,11 @@ export default class UserService {
         const user = await this.userDAO.findUser(id);
 
         if (!user) {
-            console.log("user no encontrado");
             return res.send({ status: "error", payload: "No existe el usuario" })
 
         };
 
         const update = await this.userDAO.actualizarCampo(id,lastConection)
-
 
     }
 
@@ -139,12 +129,10 @@ export default class UserService {
 
 
     async getInactiveUsersService(){
-        let tiempoMaxInactivo = 172800000
-        let tiempoPrueba = 60000 // 1 minutos
-        let date = new Date(Date.now() - tiempoPrueba).toLocaleString()
-        console.log(date);
+        let tiempoMaxInactivo = 172800000 // 2 dias
+        let tiempoPrueba = 60000 // 1 minuto
+        let date = new Date(Date.now() - tiempoMaxInactivo).toLocaleString()
         const inactiveUsers = await this.userDAO.getInactiveUsers(date)
-       // console.log( Date.now());
       
         return inactiveUsers
 
@@ -154,24 +142,21 @@ export default class UserService {
 
         const users = await this.getInactiveUsersService()
 
-        console.log(users);
-        console.log("0");
         if (users.length > 0) {
-            console.log("0");
             users.forEach(user =>{
                 let result = transport.sendMail({
-                    from: "colo.202019@gmail.com",
+                    from: config.emailFrom,
                     to: user.email,
                     subject: "Usuario eliminado",
                     html: `<div>
                     <h1>Su usuario fue eliminado por estar inactivo durante 2 dias.</h1></div > `,
                 })
-                 // this.eliminarUserPorIdService(user.id)
+                  this.eliminarUserPorIdService(user.id)
                   return result
             })
 
             if (users.length == 0) {
-                return console.log("los usuarios fueron eliminados");
+                return "los usuarios fueron eliminados"
             }
         }
         else{

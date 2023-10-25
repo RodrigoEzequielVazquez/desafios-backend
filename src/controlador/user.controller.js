@@ -11,10 +11,6 @@ export default class UserController {
 
         if (uid) {
 
-            console.log("paso controller");
-
-            // const email = req.user.id
-
             await this.userService.cambiarRolService(uid, res)
 
         }
@@ -43,7 +39,6 @@ export default class UserController {
 
         let users = await this.userService.getUsersService()
 
-        console.log(view);
         let principalInfo = users.map((user) =>{
             return new UsersDTO(user,view)
         })

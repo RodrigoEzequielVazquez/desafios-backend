@@ -9,11 +9,7 @@ export default class TicketService {
 
     async crearTicketService(productos, comprador) {
 
-        console.log(productos);
-        console.log(comprador);
-
         let total = productos.reduce((acumulador, prod) => { return acumulador + prod.precio * prod.cantidad }, 0)
-        console.log(total);
         let ticket = {
             code: uuidV4(),
             products: productos,
@@ -21,7 +17,7 @@ export default class TicketService {
             purchaser: comprador
         }
 
-        await this.ticketDAO.crearTicket(ticket)
+        return await this.ticketDAO.crearTicket(ticket)
     }
 
 
@@ -29,7 +25,5 @@ export default class TicketService {
 
        return await this.ticketDAO.getTicket()
     }
-  
-
 
 }

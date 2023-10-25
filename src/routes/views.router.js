@@ -15,10 +15,9 @@ const ticketController = new TicketController()
 
 router.get("/products",passport.authenticate("jwt",{session:false}), async (req, res) => {
 
-  const products = await productController.consultarProductosController(req,res)
+  const products = await productController.consultarProductosController(req,res,"view")
   
   let usuario = req.user
-  console.log(usuario);
 
   res.render("products", { products, user: usuario, cart: usuario.cart })
 
@@ -61,8 +60,7 @@ router.get('/cart/:cid', async (req, res) => {
    console.log("por view");
     res.render('carts', {products, total:sumTotal, cart:cart._id})
   }
- // console.log(products);
- 
+
 })
 
 router.get('/chat',passport.authenticate("jwt",{session:false}),rolesMiddlewaresUser, (req, res) => {
@@ -89,13 +87,13 @@ res.render("requestResetPassword")
 router.get('/resetPassword',passport.authenticate("jwtRequestResetPassword", {session:false, failureRedicrec: "requestResetPassword"}),(req,res)=>{
   res.render('resetPassword');
 })
-//,rolesMiddlewaresAdmin
-router.get('/usersControl',passport.authenticate("jwt", {session:false}),async (req,res)=>{
+
+router.get('/usersControl',passport.authenticate("jwt", {session:false}),rolesMiddlewaresAdmin,async (req,res)=>{
  
   const view = "admin"
   const users = await userController.getUsersController(view)
   res.render('usersControl',{users});
-  //res.render('usersControl',{ products, user: usuario });
+
 })
 
 router.get('/ticket',passport.authenticate("jwt", {session:false}),async (req,res)=>{
@@ -106,8 +104,8 @@ router.get('/ticket',passport.authenticate("jwt", {session:false}),async (req,re
     const ticket = lastTicket[0]
   
     const products = lastTicket[0].products
-    console.log(products);
-     res.render('ticket',{ticket,products});
+    
+    res.render('ticket',{ticket,products});
     
     } catch (error) {
       return next(error)

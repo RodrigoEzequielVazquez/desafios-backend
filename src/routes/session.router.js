@@ -1,9 +1,9 @@
 import { Router } from "express";
 import passport from "passport";
 import jwt from "jsonwebtoken"
-import { CurrentUserDTO } from "../controlador/DTO/user.dto.js";
 import SessionController from "../controlador/session.controller.js";
 import UserController from "../controlador/user.controller.js";
+import config from "../../config.js";
 
 const router = Router();
 
@@ -17,14 +17,8 @@ router.post("/register", passport.authenticate("register",{session:false}), asyn
 
 });
 
-// router.get("/failregister", async(req,res) =>{
-// console.log("Registro Fallido");
-// res.send({error:"Error"})
-// })
-
 router.post("/login", passport.authenticate("login",{ session: false }), async (req, res) => {
     try {
-        console.log(req.user);
         let user = {
             id:req.user._id,
             nombre:req.user.first_name,
@@ -36,7 +30,7 @@ router.post("/login", passport.authenticate("login",{ session: false }), async (
             cart:req.user.cartId,
             last_connection: new Date().getMilliseconds()
         }
-        let token = jwt.sign( user , "coderSecret", {
+        let token = jwt.sign( user , config.secretOrKey, {
             expiresIn: "24h",
           });
           res.cookie("coderCookie", token, { httpOnly: true }).send({ status: "success" });
@@ -49,9 +43,6 @@ router.post("/login", passport.authenticate("login",{ session: false }), async (
     
 });
 
-// router.get("/faillogin", (req,res) =>{
-//     res.send({error:"Login fallido"})
-// })
 
 router.get("/current",passport.authenticate("jwt",{session:false}),(req,res) =>{
     return  req.user
@@ -63,15 +54,6 @@ router.get("/logout",passport.authenticate("jwt",{session:false}),async (req,res
     res.redirect("/login")
     await userController.actualizarUserController(req.user.id,res)
 })
-
-// router.get("/logout", (req, res) => {
-//     req.session.destroy(err => {
-//         if (err) {
-//             return res.json({ status: "logout error", body: err })
-//         }
-//         res.send("Logout realizado")
-//     })
-// })
 
 router.post("/resetPassword",async(req,res) =>{
     await sessionController.resetPasswordController(req,res)

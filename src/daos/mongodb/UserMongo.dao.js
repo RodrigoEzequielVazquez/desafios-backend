@@ -4,8 +4,6 @@ export default class UserDAO {
 
     async findUser(id) {
         let result = await userModel.findById({ _id: id })
-
-       // console.log(result);
         return result
     }
 
@@ -20,13 +18,10 @@ export default class UserDAO {
     }
 
     async actualizarCampo(id, coneccion) {
-        console.log("dao");
-        console.log(coneccion);
         await userModel.updateOne({ _id: id }, { $set: { last_connection: coneccion } });
     }
 
     async cambiarRol(uid,role){
-        console.log("usuario actualizado");
         return userModel.updateOne({_id: uid}, {role})
     }
 
@@ -45,7 +40,6 @@ export default class UserDAO {
 
     async eliminarUserPorEmail(email){
         let result = await userModel.deleteOne({ email: email })
-        console.log("usuario eliminado");
         return result
     }
 

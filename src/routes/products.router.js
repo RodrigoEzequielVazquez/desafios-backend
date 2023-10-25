@@ -2,34 +2,37 @@ import { Router } from "express"
 import ProductController from "../controlador/products.controller.js";
 import ProductDAO from "../daos/mongodb/ProductMongo.dao.js";
 import passport from "passport";
-import { rolesMiddlewaresAdmin } from "./middlewares/roles.middlewares.js";
+import { rolesMiddlewaresAdmin, rolesMiddlewaresPremiumOAdmin } from "./middlewares/roles.middlewares.js";
 
 const router = Router();
 
 const productDao = new ProductDAO()
 const productController = new ProductController()
 
-router.get("/", async (req, res) => {
-    const products = await productController.consultarProductosController(req,res);
+router.get("/", async (req, res, next) => {
+    try {
+    
+       return await productController.consultarProductosController(req,res);
    
-    return {status:"success", payload:products}
-    // return products
+       
+    } catch (error) {
+        return next(error)
+    }
+   
 });
 
 router.get("/:id", passport.authenticate("jwt", { session: false }), async (req, res, next) => {
 try {
-    const product = await productController.constultarProductoPorIdController(req, res);
+    return await productController.constultarProductoPorIdController(req, res);
 } catch (error) {
     return next(error)
 }
     
 });
-// ,rolesMiddlewaresAdmin
-router.post("/", passport.authenticate("jwt", { session: false }), async (req, res, next) => {
-    try {
-        console.log(req.user);
-        console.log("ok");
 
+router.post("/", passport.authenticate("jwt", { session: false }),rolesMiddlewaresPremiumOAdmin, async (req, res, next) => {
+    try {
+    
         await productController.crearProductoController(req, res);
 
         //productos en tiempo real
@@ -41,11 +44,10 @@ router.post("/", passport.authenticate("jwt", { session: false }), async (req, r
     }
 
 });
-//, rolesMiddlewaresAdmin
 
-router.put("/:id", passport.authenticate("jwt", { session: false }), async (req, res, next) => {
+router.put("/:id", passport.authenticate("jwt", { session: false }),rolesMiddlewaresPremiumOAdmin, async (req, res, next) => {
     try {
-        const product = await productController.actualizarProductoPorIdController(req,res);
+         await productController.actualizarProductoPorIdController(req,res);
        
     } catch (error) {
         return next(error)
@@ -53,12 +55,10 @@ router.put("/:id", passport.authenticate("jwt", { session: false }), async (req,
    
 });
 
-//, rolesMiddlewaresAdmin
-
-router.delete("/:id", passport.authenticate("jwt", { session: false }), async (req, res, next) => {
+router.delete("/:id", passport.authenticate("jwt", { session: false }),rolesMiddlewaresPremiumOAdmin, async (req, res, next) => {
 
     try {
-        const product = await productController.eliminarProductoPorIdController(req,res);
+         await productController.eliminarProductoPorIdController(req,res);
     } catch (error) {
         return next(error)
     }

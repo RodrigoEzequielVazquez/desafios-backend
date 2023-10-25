@@ -39,6 +39,21 @@ export const intializePassportLocal = () => {
                     return done(null, nuevoUsuario);
                 }
 
+                if (email === config.premiumEmail && password === config.premiumPassword  ) {
+                   
+                    let nuevoUsuario = await userModel.create({
+                        first_name,
+                        last_name,
+                        email,
+                        age,
+                        password: createHash(password),
+                        role: "Premium",
+                        cartId: cart.id
+                    });
+
+                    return done(null, nuevoUsuario);
+                }
+
                 else{
                     let nuevoUsuario = await userModel.create({
                         first_name,

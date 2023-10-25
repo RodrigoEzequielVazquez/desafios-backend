@@ -19,7 +19,7 @@ export default class ProductService {
         if (product) {
             return product
         }
-        return "producto no encontrado"
+        return 
     }
 
     async crearProductoService(product) {
@@ -37,7 +37,7 @@ export default class ProductService {
         if (product) {
             return product
         }
-        return "Error al intentar actualizar el producto"
+        return
     }
 
     async eliminarProductoPorIdService(id) {
@@ -45,7 +45,7 @@ export default class ProductService {
         if (product) {
             return product
         }
-        return "Error al intentar eliminar el producto"
+        return 
     }
 
 }

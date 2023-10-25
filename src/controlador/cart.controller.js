@@ -1,10 +1,8 @@
-import ProductManager from "../daos/mongodb/ProductMongo.dao.js";
 import CartService from "../services/cart.service.js";
 import { ErrorEnum } from "../services/errors/enums.js";
-import { generateErrorId, generateErrorProductInfo, generateErrorActualizarProductInfo } from "../services/errors/info.js";
+import { generateErrorId } from "../services/errors/info.js";
 import CustomError from "../services/errors/CustomError.class.js";
 import ProductService from "../services/product.service.js";
-const productManager = new ProductManager();
 
 export default class CartController {
 
@@ -13,9 +11,15 @@ export default class CartController {
         this.productService = new ProductService()
     }
 
-    async consultarCartsController() {
+    async consultarCartsController(res) {
         const carts = await this.cartService.consultarCartsService();
-        return carts
+        
+        if (carts.length > 0) {
+            return res.send({status:"success",payload:carts})
+        }
+        else{
+            return res.send({status:"error",payload:"No hay carritos"})
+        }
 
     }
 
@@ -33,17 +37,28 @@ export default class CartController {
         else{
             const cart = await this.cartService.consultarCartsPorIdService(id);
 
-            if (view == "view") {
-                 return cart
+            if (cart) {
+                if (view == "view") {
+                    return cart
+               }
+              
+               return res.send({status:"success", payload: cart});
             }
+            else{
+                return res.send({status:"error",payload:"No hay carritos con el id" + id})
+            }
+
            
-            return res.send({status:"success", payload: cart});
         }
     }
 
-    async crearCartController() {
+    async crearCartController(res) {
         const cart = await this.cartService.crearCartService();
-        return cart
+        if (cart) {
+            return res.send({status:"success", payload: "Carrito creado con id: " + cart._id}) 
+        }
+        return res.send({status:"error", payload: "Error al crear el carrito"}) 
+       
     }
 
     async agregarProductoEnCarritoController(req,res) {
@@ -61,16 +76,24 @@ export default class CartController {
         }
 
         const producto = await this.productService.constultarProductoPorIdService(productId)
-        console.log(req.user.rol);
-        if (req.user.rol == "Premium" && producto.owner == req.user.email) {
-            console.log("controller cart paso if");
-            return res.send({error:"error", payload: "Un usuario premium no puede agregar productos que le pertenezcan a su carrito"})
+
+        const cart = await this.cartService.consultarCartsPorIdService(cartId)
+
+        if (producto ) {
+            if (!cart) {
+                return res.send({status:"error", payload: "No existe un carrito con el id: "+ cartId}) 
+            }
+            else{
+                if (req.user.rol == "Premium" && producto.owner == req.user.email) {
+                    return res.send({error:"error", payload: "Un usuario premium no puede agregar productos que le pertenezcan a su carrito"})
+                }
+                else{
+                    await this.cartService.agregarProductoEnCarritoService(cart, producto);
+                    return res.send({ status: "success", payload:"el producto se agrego correctamente" }).status(200);
+                }
+            }
         }
-        else{
-            console.log("controller cart paso else");
-            await this.cartService.agregarProductoEnCarritoService(cartId, productId);
-            return res.send({ status: "success", payload:"el producto se agrego correctamente" }).status(200);
-        }
+        return res.send({status:"error", payload: "No existe un producto con el id: "+ productId}) 
 
     }
 
@@ -130,11 +153,11 @@ export default class CartController {
 
     }
 
-    async eliminarTodosLosProductosController(req) {
+    async eliminarTodosLosProductosController(req,res) {
         const cartId = req.params.cid
 
-        await this.cartService.eliminarTodosLosProductosService(cartId);
-        return "Se eliminaron todos los productos"
+        let result = await this.cartService.eliminarTodosLosProductosService(cartId);
+        return res.send({ status: "success", payload: result });
 
     }
 
