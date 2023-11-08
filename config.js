@@ -19,5 +19,7 @@ export default {
     emailFrom:process.env.EMAIL_FROM,
     transporService:process.env.TRANSPORT_SERVICE,
     tansportPort:process.env.TRANSPORT_PORT,
-    transportPass:process.env.TRANSPORT_PASS
+    transportPass:process.env.TRANSPORT_PASS,
+    coderCookie:process.env.CODER_COOKIE,
+    tknReset:process.env.TKN_RESET
 }

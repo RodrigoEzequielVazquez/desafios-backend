@@ -38,11 +38,8 @@ router.get('/cart/:cid', async (req, res) => {
   const cart = await cartController.consultarCartsPorIdController(req,res,"view")
   let products = JSON.parse(JSON.stringify(cart.products))
 
-  console.log("productos lenght");
-  console.log(products.length);
-
   if (products.length == 0) {
-    return "no hay productos"
+    return res.send({error:"No hay productos en el carrito para mostrar"})
   }
   else{
     products.forEach((prod) => {
@@ -56,8 +53,7 @@ router.get('/cart/:cid', async (req, res) => {
    let sumTotal = totals.reduce((a,b) =>{
      return a+b
    })
- 
-   console.log("por view");
+
     res.render('carts', {products, total:sumTotal, cart:cart._id})
   }
 

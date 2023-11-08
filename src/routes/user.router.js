@@ -12,8 +12,8 @@ router.put('/premium/:uid', passport.authenticate("jwt", { session: false }),  a
     try {
    
         const uid = req.params.uid;
+        console.log(req.user);
 
-        console.log("ruta inicial" );
         return await userController.cambiarRolController(uid, req, res)
 
     }
@@ -26,7 +26,6 @@ router.post('/:uid/documents', uploader.fields([{name:"profiles"},{name:"product
     try {
         const uid = req.params.uid;
         const files = req.files
-        console.log(files)
          await userController.subirDocumentosController(uid, files)
         res.send({ status: "success", payload:`la imagen se envio de forma correcta` });
     } catch(e) {

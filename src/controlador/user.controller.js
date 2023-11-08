@@ -11,7 +11,7 @@ export default class UserController {
 
         if (uid) {
 
-            await this.userService.cambiarRolService(uid, res)
+            await this.userService.cambiarRolService(uid, res,req)
 
         }
         else {

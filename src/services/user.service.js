@@ -21,7 +21,7 @@ export default class UserService {
         await this.userDAO.updatePassword(email, newPassword)
     }
 
-    async cambiarRolService(uid, res) {
+    async cambiarRolService(uid, res, req) {
 
         const usuario = await this.findUserService(uid)
      
@@ -30,8 +30,8 @@ export default class UserService {
             if (usuario.role == "Admin") {
                 return "no se puede cambiar ese tipo de usuario"
             }
- 
-            if (usuario.role === "User") {
+
+            if (usuario.role == "User") {
                 const documents = usuario.documents.filter(doc => [
                     "identificacion",
                     "domicilio",
@@ -43,6 +43,14 @@ export default class UserService {
                     return res.send({ status: "error", payload: "Debe ingresar todos los documentos" })
                 }
 
+                
+            if (req.user.rol == "Admin") {
+                await this.userDAO.cambiarRol(uid, "Premium")
+
+                return res.send({ status: "succes", payload: "El role fue cambiado con exito" })
+            }
+            else{
+
                 let user = {
                     id: usuario._id,
                     nombre: usuario.first_name,
@@ -53,15 +61,24 @@ export default class UserService {
                     rol: "Premium",
                     cart: usuario.cartId
                 }
-                let token = jwt.sign(user, "coderSecret", { expiresIn: "24h", });
+                let token = jwt.sign(user, config.secretOrKey, { expiresIn: "24h", });
 
-                res.cookie("coderCookie", token, { httpOnly: true })
+                res.cookie(config.coderCookie, token, { httpOnly: true })
 
                 await this.userDAO.cambiarRol(uid, "Premium")
 
                 return res.send({ status: "succes", payload: "El role fue cambiado con exito" })
+            }
 
             }
+
+                  
+            if (req.user.rol == "Admin") {
+                await this.userDAO.cambiarRol(uid, "User")
+
+                return res.send({ status: "succes", payload: "El role fue cambiado con exito" })
+            }
+
             let user = {
                 id: usuario._id,
                 nombre: usuario.first_name,
@@ -72,9 +89,9 @@ export default class UserService {
                 rol: "User",
                 cart: usuario.cartId
             }
-            let token = jwt.sign(user, "coderSecret", { expiresIn: "24h", });
+            let token = jwt.sign(user, config.secretOrKey, { expiresIn: "24h", });
 
-            res.cookie("coderCookie", token, { httpOnly: true })
+            res.cookie(config.coderCookie, token, { httpOnly: true })
 
             await this.userDAO.cambiarRol(uid, "User")
 
@@ -87,7 +104,6 @@ export default class UserService {
     async subirDocumentosService(uid, files) {
         const user = await this.userDAO.findUser(uid);
         if (!user) {
-            console.log("user no encontrado");
             return "no se encontro el usuario"
 
         };

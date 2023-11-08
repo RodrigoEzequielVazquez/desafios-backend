@@ -1,5 +1,6 @@
 import passport from "passport";
 import jwt from "passport-jwt"
+import config from "../../config.js";
 
 const JWTStrategy = jwt.Strategy;
 const ExtractJWT = jwt.ExtractJwt;
@@ -10,7 +11,7 @@ export const initializePassportJWT = () => {
     new JWTStrategy(
       {
         jwtFromRequest: ExtractJWT.fromExtractors([cookieExtractor]),
-        secretOrKey: "coderSecret",
+        secretOrKey: config.secretOrKey,
       },
       async (jwtPayload, done) => {
         try {
@@ -27,7 +28,7 @@ export const initializePassportJWT = () => {
     new JWTStrategy(
       {
         jwtFromRequest: ExtractJWT.fromExtractors([queryExtractor]),
-        secretOrKey: "tokenReset",
+        secretOrKey: config.tknReset,
       },
       async (jwtPayload, done) => {
         try {

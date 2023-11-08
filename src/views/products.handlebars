@@ -22,15 +22,13 @@
     <div>
         {{#each this.products}}
         <div>
-            <p>{{this.title}}</p>
-            <p>{{this.description}}</p>
-            <p>{{this.code}}</p>
-            <p>{{this.price}}</p>
-            <p>{{this.stock}}</p>
-            <p>{{this.category}}</p>
-            <p>{{this.thumbnail}}</p>
-            <p>{{this.status}}</p>
-            <p>{{this.id}}</p>
+            <p>Producto: {{this.title}}</p>
+            <p>Descripcion: {{this.description}}</p>
+            <p>Codigo:{{this.code}}</p>
+            <p>Precio: ${{this.price}}</p>
+            <p>Stock: {{this.stock}}</p>
+            <p>Categoria: {{this.category}}</p>
+            <p>Id: {{this.id}}</p>
             <button onclick="agregarAlCarrito(`{{this.id}}`,`{{../user.cart}}`)">Agregar al carrito</button>
             <br><br><br>
             {{/each}}

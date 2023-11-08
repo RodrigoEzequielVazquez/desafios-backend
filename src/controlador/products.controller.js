@@ -182,8 +182,6 @@ export default class ProductController {
         else{
             res.send({ status: "error", payload: "No hay productos con el id " + id });
         }
-
-      
     }
 
     async eliminarProductoPorIdController(req, res) {
